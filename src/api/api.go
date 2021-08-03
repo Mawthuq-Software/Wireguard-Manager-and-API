@@ -51,13 +51,7 @@ func API() {
 			privKeyCert, router)
 		log.Fatal("Error - Startup of API server", err)
 	}
-	// port := os.Getenv("PORT")
-	// serverName := os.Getenv("SERVER_NAME")
-	// log.Printf("About to listen on %s.", port)
-	// err := http.ListenAndServeTLS(":"+port,
-	// 	"/etc/letsencrypt/live/"+serverName+".sunnahvpn.com/fullchain.pem",
-	// 	"/etc/letsencrypt/live/"+serverName+".sunnahvpn.com/privkey.pem", router)
-	// log.Fatal("Error - Startup of API server", err)
+
 }
 
 func parseResponse(req *http.Request, schema interface{}) error {
