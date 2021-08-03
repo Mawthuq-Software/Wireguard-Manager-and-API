@@ -92,7 +92,7 @@ func keyCreate(res http.ResponseWriter, req *http.Request) {
 	if os.Getenv("AUTH") != "-" { //check AUTH
 		authHeader := req.Header.Get("Authorization")
 		if os.Getenv("AUTH") != authHeader {
-			response(res, map[string]string{"response": err.Error()}, http.StatusBadRequest)
+			response(res, map[string]string{"response": "Authentication key is not valid"}, http.StatusBadRequest)
 			return
 		}
 	}
@@ -126,7 +126,7 @@ func keyRemove(res http.ResponseWriter, req *http.Request) {
 	if os.Getenv("AUTH") != "-" { //check AUTH
 		authHeader := req.Header.Get("Authorization")
 		if os.Getenv("AUTH") != authHeader {
-			response(res, map[string]string{"response": err.Error()}, http.StatusBadRequest)
+			response(res, map[string]string{"response": "Authentication key is not valid"}, http.StatusBadRequest)
 			return
 		}
 	}
