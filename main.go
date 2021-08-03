@@ -16,7 +16,7 @@ func main() {
 	fmt.Println("WG MANAGER AND API STARTING UP")
 
 	fmt.Println("Env file loading - 1/6")
-	errEnv := godotenv.Load(".env")
+	errEnv := godotenv.Load("/opt/wgManagerAPI/.env")
 	if errEnv != nil {
 		fmt.Println("Env failed to load - FAILED")
 		os.Exit(1)
