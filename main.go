@@ -31,7 +31,7 @@ func main() {
 	fmt.Println("Starting of network - 4/6")
 	network.SetupWG()
 
-	if os.Getenv("autocheck") == "enabled" {
+	if os.Getenv("AUTOCHECK") == "enabled" {
 		fmt.Println("Starting autochecker - 5/6")
 		autocheck.AutoStart()
 	} else {
