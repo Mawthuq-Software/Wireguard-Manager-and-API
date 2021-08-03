@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/api"
 	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/autocheck"
 	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/db"
 	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/logger"
@@ -31,6 +32,12 @@ func main() {
 	network.SetupWG()
 
 	if os.Getenv("autocheck") == "enabled" {
+		fmt.Println("Starting autochecker - 5/6")
 		autocheck.AutoStart()
+	} else {
+		fmt.Println("Skipped autochecker - 5/6")
 	}
+
+	fmt.Println("Starting API - 6/6")
+	api.API()
 }
