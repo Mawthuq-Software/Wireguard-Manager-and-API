@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+    wireguard-manager-and-api:
+      image:  registry.gitlab.com/raspberry.tech/wireguard-manager-and-api:main
+      volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+      - /opt/wgManagerAPI:/opt/wgManagerAPI
+      - /lib/modules:/lib/modules
+      ports:
+      - "8443:8443"
+      - "51820:51820/udp"
+      cap_add:
+        - NET_ADMIN
+        - SYS_MODULE
+      sysctls:
+        - net.ipv4.conf.all.src_valid_mark=1
+        - net.ipv6.conf.all.disable_ipv6=0
