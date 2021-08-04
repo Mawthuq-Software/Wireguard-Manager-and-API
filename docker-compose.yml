@@ -2,7 +2,7 @@ version: "3"
 
 services:
     wireguard-manager-and-api:
-      image:  registry.gitlab.com/raspberry.tech/wireguard-manager-and-api:main
+      image:  registry.gitlab.com/mawthuq-software/wireguard-manager-and-api:main
       volumes:
       - /etc/letsencrypt:/etc/letsencrypt
       - /opt/wgManagerAPI:/opt/wgManagerAPI
