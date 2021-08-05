@@ -82,6 +82,71 @@ Do not forget to add your ``.env`` file to ``/opt/wgManagerAPI/.env``
 5. ``go build -o wgManagerAPI main.go`` to build an output a executable file
 6. ``sudo ./wgManagerAPI`` to run the application.
 
+## Communicating with the API
+### Adding keys
+
+URL: `POST` request to `http(s)://domain.com:PORT/manager/keys`
+
+Header: `Content-Type: application/json`
+
+Header (If authentication is enabled): `authorization:(AUTH key from .env)`
+
+Body: 
+```json
+{
+  "publicKey": "(Wireguard client public key)",
+  "presharedKey": "(Wireguard client preshared key)"
+}
+```
+Response: 
+```json
+{
+  "allowedIPs": "0.0.0.0/0, ::/0",
+  "dns": "10.6.0.1",
+  "ipAddress": "(public IP of server)",
+  "ipv4Address": "(internal IPv4 Address assigned to client) 10.6.0.10/32", 
+  "ipv6Address": "(internal IPv6 Address assigned to client) fe22:22:22::10/128",
+  "keyID": "(KeyID in database) 1",
+  "listenPort": "(wireguard default listenport) 51820",
+  "publicKey": "(Public key of wireguard server) ghyewr34A0wzT1b7ZdJgPjWwS3F/9PgRzlNWcX/QlA0=",
+  "response": "Added key successfully"
+}
+```
+Parsing response into client config:
+```
+[Interface]
+PrivateKey = (Wireguard client private key)
+Address = (internal IPv4 Address assigned to client), (internal IPv6 Address assigned to client)
+DNS = 10.6.0.1
+
+[Peer]
+PublicKey = (Public key of wireguard server)
+PresharedKey = (Wireguard client preshared key)
+AllowedIPs = 0.0.0.0/0, ::/0
+Endpoint = (public IP of server):51820
+```
+
+### Removing keys
+URL: `DELETE` request to `http(s)://domain.com:PORT/manager/keys`
+
+Header: `Content-Type: application/json`
+
+Header (If authentication is enabled): `authorization:(AUTH key from .env)`
+
+Body:
+```json
+{
+  "keyID": "(Database keyID)"
+}
+```
+Response:
+```json
+{
+  "response": "Key deleted"
+}
+```
+
+
 ## Debugging
 ### Logs
 If the Wireguard Manager and API application fails to start you should always look at your logs and the errors to see the problems look at ``/opt/wgManagerAPI/logs/`` folder and open the latest log using ``nano`` or any other text editor.
