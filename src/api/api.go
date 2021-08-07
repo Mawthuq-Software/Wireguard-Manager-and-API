@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"os"
 
@@ -36,8 +37,11 @@ func API() {
 		fmt.Printf("Info - HTTP about to listen on %s.", port)
 		log.Printf("Info - HTTP about to listen on %s.", port)
 
-		err := http.ListenAndServe(":"+port, router)
-		log.Fatal("Error - Startup of API server", err)
+		resolve, _ := net.ResolveTCPAddr("tcp4", "0.0.0.0:8443")
+		resolveTCP, _ := net.ListenTCP("tcp4", resolve)
+
+		errServer := http.Serve(resolveTCP, router)
+		log.Fatal("Error - Startup of API server", errServer)
 	} else {
 		port := os.Getenv("PORT")
 		fullchainCert := os.Getenv("FULLCHAIN_CERT")
@@ -46,10 +50,11 @@ func API() {
 		log.Printf("HTTPS about to listen on %s.", port)
 		fmt.Printf("HTTPS about to listen on %s.", port)
 
-		err := http.ListenAndServeTLS(":"+port,
-			fullchainCert, //fullchain
-			privKeyCert, router)
-		log.Fatal("Error - Startup of API server", err)
+		resolve, _ := net.ResolveTCPAddr("tcp4", "0.0.0.0:8443")
+		resolveTCP, _ := net.ListenTCP("tcp4", resolve)
+
+		errServer := http.ServeTLS(resolveTCP, router, fullchainCert, privKeyCert)
+		log.Fatal("Error - Startup of API server", errServer)
 	}
 
 }
