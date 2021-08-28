@@ -5,7 +5,27 @@ A manager and API to add, remove clients as well as other features such as an au
 This GoLang application runs an API which can be made **https** ready using a LetsEncrypt certificate. The program creates directories in the directory ``/opt/wgManagerAPI`` (This needs to be created manually before hand). In the ``/opt/wgManagerAPI`` directory we have a few more sub-directories such as ``/logs`` which contain logs of the application and ``/wg`` which contains our SQLite database.
 
 The SQLite database contains tables which store information such as generated and available IPs, client configuration (public key and preshared key) as well as the Wireguard server own private key, public key, IP Addresses and ListenPort.
-# How to use
+
+## Content
+
+**[1. .env File](#env-file)**
+
+**[2. Deployment](#deployment)**
+  - [2.1. Docker](#docker)
+  - [2.2. Docker-compose](#docker-compose)
+  - [2.3. Building from source](#building-from-source)
+    - [2.3.1. Code](#code)
+    - [2.3.2. Dockerfile](#dockerfile)
+
+**[3. Communicating with the API](#communicating-with-the-api)**
+  - [3.1 Adding keys](#adding-keys)
+  - [3.2 Removing keys](#removing-keys)
+  - [3.3 Enabling keys](#enabling-keys)
+  - [3.4 Disabling keys](#disabling-keys)
+
+**[4. Debugging](#debugging)**
+  - [4.1 Logs](#logs)
+  - [4.2 FAQ](#faq)
 ## .env File
 A .env file needs to be placed in the directory `/opt/wgManagerAPI/.env` containing the following:
 
@@ -72,9 +92,10 @@ services:
 The docker-compose file is the easiest way to get software up and running. Do not forget to add your ``.env`` file to ``/opt/wgManagerAPI/.env``
 
 ### Building from source
-Building from source allows you to create an executable file which can be created into a Systemd service or equivalent. Running the executable must be run with sudo (recommended) or root (not recommended). 
+#### Code
+Building from source allows you to create an executable file which can be created into a Systemd service or equivalent. It also allows you to build for a different architecture such as ARM64. Running the executable must be run with sudo (recommended) or root (not recommended). 
 
-Do not forget to add your ``.env`` file to ``/opt/wgManagerAPI/.env``
+Do not forget to add your `.env` file to `/opt/wgManagerAPI/.env`
 1. Install Go 1.14+ on to your machine
 2. git clone this repository
 3. ``cd wireguard-manager-and-api`` to open the repo
@@ -82,15 +103,23 @@ Do not forget to add your ``.env`` file to ``/opt/wgManagerAPI/.env``
 5. ``go build -o wgManagerAPI main.go`` to build an output a executable file
 6. ``sudo ./wgManagerAPI`` to run the application.
 
+#### Dockerfile
+Building a docker image from scratch enables you to create an image specific to a specific architecture such as ARM64 as prebuilt images in our docker image repository is made for AMD64 architecture.
+
+Do not forget to add your `.env`` file to ``/opt/wgManagerAPI/.env`
+1. Install docker
+2. Clone the git repository and open the directory
+3. ``sudo docker build -t wireguard-manager-and-api:YOURTAGHERE .`` to build the docker image locally
+
 ## Communicating with the API
+
+With almost any API error the server will give back a ``400 Bad Request`` status code. Please read the JSON response file "response" to get the error information.
+
 ### Adding keys
 
-URL: `POST` request to `http(s)://domain.com:PORT/manager/keys`
-
-Header: `Content-Type: application/json`
-
-Header (If authentication is enabled): `authorization:(AUTH key from .env)`
-
+URL: `POST` request to `http(s)://domain.com:PORT/manager/keys`  
+Header: `Content-Type: application/json`  
+Header (If authentication is enabled): `authorization:(AUTH key from .env)`  
 Body: 
 ```json
 {
@@ -98,7 +127,8 @@ Body:
   "presharedKey": "(Wireguard client preshared key)"
 }
 ```
-Response: 
+Response:  
+Status Code `202`
 ```json
 {
   "allowedIPs": "0.0.0.0/0, ::/0",
@@ -112,7 +142,7 @@ Response:
   "response": "Added key successfully"
 }
 ```
-Parsing response into client config:
+Parsing response into Wireguard client config:
 ```
 [Interface]
 PrivateKey = (Wireguard client private key)
@@ -127,32 +157,72 @@ Endpoint = (public IP of server):51820
 ```
 
 ### Removing keys
-URL: `DELETE` request to `http(s)://domain.com:PORT/manager/keys`
-
-Header: `Content-Type: application/json`
-
-Header (If authentication is enabled): `authorization:(AUTH key from .env)`
-
+URL: `DELETE` request to `http(s)://domain.com:PORT/manager/keys`  
+Header: `Content-Type: application/json`  
+Header (If authentication is enabled): `authorization:(AUTH key from .env)`  
 Body:
 ```json
 {
   "keyID": "(Database keyID)"
 }
 ```
-Response:
+Response:  
+Status Code `202`
 ```json
 {
   "response": "Key deleted"
 }
 ```
 
+### Enabling keys
+URL: `POST` request to `http(s)://domain.com:PORT/manager/keys/enable`  
+Header: `Content-Type: application/json`  
+Header (If authentication is enabled): `authorization:(AUTH key from .env)`  
+Body:
+```json
+{
+  "keyID": "(Database keyID)"
+}
+```
+Response:  
+Status Code `202`
+```json
+{
+  "response": "Enabled key successfully"
+}
+```
+
+### Disabling keys
+URL: `POST` request to `http(s)://domain.com:PORT/manager/keys/disable`  
+Header: `Content-Type: application/json`  
+Header (If authentication is enabled): `authorization:(AUTH key from .env)`  
+Body:  
+```json
+{
+  "keyID": "(Database keyID)"
+}
+```
+Response:  
+Status Code `202`
+```json
+{
+  "response": "Disabled key successfully"
+}
+```
 
 ## Debugging
 ### Logs
 If the Wireguard Manager and API application fails to start you should always look at your logs and the errors to see the problems look at ``/opt/wgManagerAPI/logs/`` folder and open the latest log using ``nano`` or any other text editor.
 
 ### FAQ
-Haha nothing here
+**Q:** The prebuilt source file or docker image is not working properly.  
+**A:** Build from dockerfile or code from source. The prebuilt docker images are not for ARM architecture.
+
+**Q:** IPv6 is not working with the docker image.  
+**A:** We have not been able to setup IPv6 on the docker-compose file successfully. If you find a solution please tell us.
+
+**Q:** I have built from source code but unable to successfully route clients through the VPN  
+**A:** You may need the iptables rule: ``sudo iptables -t nat -A POSTROUTING -o (INTERFACE I.E eth0 or enp0s3) -j MASQUERADE``. This will be required on boot everytime. We will try and implement this into the program in the future.
 
 
 
