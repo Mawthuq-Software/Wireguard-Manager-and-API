@@ -1,0 +1,13 @@
+[Unit]
+Description=Run script at startup after network becomes reachable
+After=network.target
+
+[Service]
+Type=simple
+RemainAfterExit=yes
+ExecStart=/usr/bin/sudo /app/./coredns --conf /app/Corefile
+TimeoutStartSec=0
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

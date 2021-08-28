@@ -17,7 +17,7 @@ func LoggerSetup() {
 		os.Exit(1) //exit program
 	}
 
-	file, errLog := os.OpenFile("/opt/wgManagerAPI"+timeStr+" log.txt", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0755) //open file
+	file, errLog := os.OpenFile("/opt/wgManagerAPI/logs/"+timeStr+" log.txt", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0755) //open file
 	if errLog != nil {
 		fmt.Println("Error when opening log file \n", errLog)
 	} else {
