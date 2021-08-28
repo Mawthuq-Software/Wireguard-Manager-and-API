@@ -1,6 +1,6 @@
 # Filename: Dockerfile 
 FROM golang:buster
-WORKDIR /usr/src/sunnahvpn
+WORKDIR /usr/src/wireguard-manager-and-api
 COPY . .
 
 RUN echo 'deb http://ftp.debian.org/debian buster-backports main' | tee /etc/apt/sources.list.d/buster-backports.list
@@ -42,11 +42,11 @@ COREDNS_VERSION=$(curl -sX GET "https://api.github.com/repos/coredns/coredns/rel
 	/var/tmp/*
 RUN mv Corefile /app/Corefile 
 USER docker
-RUN sudo mv coredns.service /etc/systemd/system/
+RUN sudo mv services/coredns.service /etc/systemd/system/
 RUN sudo systemctl daemon-reload
-RUN sudo chmod +x start.sh  
+RUN sudo chmod +x services/start.sh  
 
 EXPOSE 8443 51820/udp
-CMD ["sudo", "./start.sh"]
+CMD ["sudo", "./services/start.sh"]
 
 USER docker
