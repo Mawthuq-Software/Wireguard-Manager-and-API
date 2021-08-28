@@ -22,8 +22,8 @@ func CreateKey(pubKey string, preKey string) (bool, map[string]string) {
 		return false, responseMap
 	}
 
-	keyStructCreate := Key{PublicKey: pubKey, PresharedKey: preKey, IPv4Address: ipStruct.IPv4Address} //create Key object
-	resultKeyCreate := db.Create(&keyStructCreate)                                                     //add object to db
+	keyStructCreate := Key{PublicKey: pubKey, PresharedKey: preKey, IPv4Address: ipStruct.IPv4Address, Enabled: "true"} //create Key object
+	resultKeyCreate := db.Create(&keyStructCreate)                                                                      //add object to db
 	if resultKeyCreate.Error != nil {
 		log.Println("Error - Adding key to db", resultKeyCreate.Error)
 		responseMap["response"] = "Error when adding key to database"

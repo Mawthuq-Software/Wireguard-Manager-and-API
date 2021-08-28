@@ -28,7 +28,7 @@ func DisableKey(keyID string) (bool, map[string]string) {
 	}
 	pubKey := keyStruct.PublicKey
 	boolRes, stringRes := manager.DeleteKey("wg0", pubKey) //delete key from wg interface
-	if boolRes == true {
+	if boolRes {
 		responseMap["response"] = "Disabled key successfully"
 	} else {
 		responseMap["response"] = stringRes

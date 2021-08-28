@@ -39,7 +39,7 @@ func EnableKey(keyID string) (bool, map[string]string) {
 	}
 	ipv6Addr := ipStruct.IPv6Address
 	boolRes, stringRes := manager.AddKey("wg0", ipv4Addr, ipv6Addr, pubKey, preKey) //add key to wg interface
-	if boolRes == true {
+	if boolRes {
 		responseMap["response"] = "Enabled key successfully"
 	} else {
 		responseMap["response"] = stringRes
