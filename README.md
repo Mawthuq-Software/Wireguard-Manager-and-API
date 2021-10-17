@@ -22,6 +22,7 @@ The SQLite database contains tables which store information such as generated an
   - [3.2 Removing keys](#removing-keys)
   - [3.3 Enabling keys](#enabling-keys)
   - [3.4 Disabling keys](#disabling-keys)
+  - [3.5 Editing subscriptions](#editing-subscriptions )
 
 **[4. Debugging](#debugging)**
   - [4.1 Logs](#logs)
@@ -124,7 +125,9 @@ Body:
 ```json
 {
   "publicKey": "(Wireguard client public key)",
-  "presharedKey": "(Wireguard client preshared key)"
+  "presharedKey": "(Wireguard client preshared key)",
+  "bwLimit": (integer, megabytes, 0 for infinite),
+	"subExpiry": "(date in this FORMAT!! uses UTC for timing) 2021-Oct-28 12:39:05 PM"
 }
 ```
 Response:  
@@ -210,6 +213,28 @@ Status Code `202`
 }
 ```
 
+### Editing subscriptions 
+This allows editing of subscriptions such as bandwidth, resetting bandwidth usage and changing the subscription expiry date.  
+URL: `POST` request to `http(s)://domain.com:PORT/manager/subscriptions/edit`  
+Header: `Content-Type: application/json`  
+Header (If authentication is enabled): `authorization:(AUTH key from .env)`  
+Body:  
+```json
+{
+	"keyID": "(database keyID)",
+	"bwLimit": (integer, bandwidth limit. Set to -1 to keep current limit.),
+	"subExpiry": "(date, must be this format!!) 2032-Oct-21 12:49:05 PM",
+	"bwReset": true (a boolean, set to true to reset current bandwidth usage.)
+}
+```
+Response:  
+Status Code `202`
+```json
+{
+  "response": "Disabled key successfully"
+}
+```
+
 ## Debugging
 ### Logs
 If the Wireguard Manager and API application fails to start you should always look at your logs and the errors to see the problems look at ``/opt/wgManagerAPI/logs/`` folder and open the latest log using ``nano`` or any other text editor.
@@ -224,6 +249,8 @@ If the Wireguard Manager and API application fails to start you should always lo
 **Q:** I have built from source code but unable to successfully route clients through the VPN  
 **A:** You may need the iptables rule: ``sudo iptables -t nat -A POSTROUTING -o (INTERFACE I.E eth0 or enp0s3) -j MASQUERADE``. This will be required on boot everytime. We will try and implement this into the program in the future.
 
+**Q:** Do I need to use a wg0.conf file?  
+**A:** No, and please do not try, it may mess up some of the functionality we provide such as automatic deleting and re-adding keys.
 
 
 
