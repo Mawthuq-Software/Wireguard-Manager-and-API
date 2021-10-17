@@ -11,7 +11,8 @@ import (
 type keyCreateJSON struct {
 	PublicKey    string `json:"publicKey"`
 	PresharedKey string `json:"presharedKey"`
-	KeyID        string `json:"keyID"`
+	BWLimit      int64  `json:"bwLimit"`
+	SubExpiry    string `json:"subExpiry"`
 }
 
 func keyCreate(res http.ResponseWriter, req *http.Request) {
@@ -27,7 +28,14 @@ func keyCreate(res http.ResponseWriter, req *http.Request) {
 	if incomingJson.PresharedKey == "" || incomingJson.PublicKey == "" {
 		sendResponse(res, map[string]string{"response": "Bad Request, presharedKey and publicKey must be filled"}, http.StatusBadRequest)
 		return
+	} else if incomingJson.BWLimit < 0 {
+		sendResponse(res, map[string]string{"response": "Bad Request, bandwidth cannot be negative"}, http.StatusBadRequest)
+		return
+	} else if incomingJson.SubExpiry == "" {
+		sendResponse(res, map[string]string{"response": "Bad Request, subscription expiry must be filled"}, http.StatusBadRequest)
+		return
 	}
+
 	if os.Getenv("AUTH") != "-" { //check AUTH
 		authHeader := req.Header.Get("Authorization")
 		if os.Getenv("AUTH") != authHeader {
@@ -36,7 +44,7 @@ func keyCreate(res http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	boolRes, mapRes := db.CreateKey(incomingJson.PublicKey, incomingJson.PresharedKey) //add key to db
+	boolRes, mapRes := db.CreateKey(incomingJson.PublicKey, incomingJson.PresharedKey, incomingJson.BWLimit, incomingJson.SubExpiry) //add key to db
 	if !boolRes {
 		sendResponse(res, mapRes, http.StatusBadRequest)
 	} else {
