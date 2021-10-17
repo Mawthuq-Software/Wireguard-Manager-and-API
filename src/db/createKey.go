@@ -5,16 +5,24 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"time"
 
+	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/logger"
 	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/manager"
 	"gorm.io/gorm"
 )
 
-func CreateKey(pubKey string, preKey string) (bool, map[string]string) {
+func CreateKey(pubKey string, preKey string, bwLimit int64, subEnd string) (bool, map[string]string) {
 	var ipStruct IP
 	var wgStruct WireguardInterface
 	responseMap := make(map[string]string)
 	db := DBSystem
+
+	_, subErr := time.Parse("2006-Jan-02 03:04:05 PM", subEnd)
+	if !logger.ErrorHandler("Error - Parsing stored time ", subErr) {
+		responseMap["response"] = "Error when parsing time"
+		return false, responseMap
+	}
 
 	resultIP := db.Where("in_use = ?", "false").First(&ipStruct) //find IP not in use
 	if errors.Is(resultIP.Error, gorm.ErrRecordNotFound) {
@@ -29,9 +37,18 @@ func CreateKey(pubKey string, preKey string) (bool, map[string]string) {
 		responseMap["response"] = "Error when adding key to database"
 		return false, responseMap
 	}
-	ipStruct.InUse = "true"                                                                                             //set ip to in use
-	db.Save(&ipStruct)                                                                                                  //update IP in db
-	keyIDStr := strconv.Itoa(keyStructCreate.KeyID)                                                                     //convert keyID to string
+	ipStruct.InUse = "true"                         //set ip to in use
+	db.Save(&ipStruct)                              //update IP in db
+	keyIDStr := strconv.Itoa(keyStructCreate.KeyID) //convert keyID to string
+
+	subStructCreate := Subscription{KeyID: keyStructCreate.KeyID, PublicKey: pubKey, BandwidthUsed: 0, BandwidthAllotted: bwLimit, SubscriptionEnd: subEnd}
+	resultSub := db.Create(&subStructCreate)
+	if resultSub.Error != nil {
+		log.Println("Error - Adding subscription to db", resultKeyCreate.Error)
+		responseMap["response"] = "Error when adding subscription to database"
+		return false, responseMap
+	}
+
 	boolRes, strRes := manager.AddKey(ipStruct.WGInterface, ipStruct.IPv4Address, ipStruct.IPv6Address, pubKey, preKey) //add key to wg interface
 	if !boolRes {                                                                                                       //if an error occurred
 		responseMap["response"] = strRes
