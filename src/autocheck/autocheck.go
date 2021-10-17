@@ -5,20 +5,21 @@ import (
 	"time"
 
 	"github.com/go-co-op/gocron"
-	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/manager"
+	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/db"
 )
 
 func AutoStart() {
 	log.Println("Info - AutoStart running")
 	s := gocron.NewScheduler(time.UTC)
-	s.Every(5).Minutes().Do(checkPeer)
+	s.Every(5).Minute().Do(checkPeer)
+	s.Every(1).Minute().Do(checkBW)
 	s.StartAsync()
 }
 
 var checkPeer = func() {
 	log.Println("Info - Running check wg check peers")
 	for i := 0; i < 2; i++ {
-		boolWG := manager.AddRemovePeer()
+		boolWG := db.AddRemovePeers()
 		if !boolWG {
 			log.Println("Error - When AddRemovePeer was run")
 
@@ -27,4 +28,9 @@ var checkPeer = func() {
 			break
 		}
 	}
+}
+
+var checkBW = func() {
+	log.Println("Info - Running check bandwidth")
+	db.BWPeerCheck()
 }
