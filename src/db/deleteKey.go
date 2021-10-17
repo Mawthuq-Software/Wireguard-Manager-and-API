@@ -12,6 +12,8 @@ import (
 func DeleteKey(keyID string) (bool, map[string]string) {
 	var ipStruct IP
 	var keyStruct Key
+	var subStruct Subscription
+
 	responseMap := make(map[string]string)
 	db := DBSystem
 
@@ -22,11 +24,11 @@ func DeleteKey(keyID string) (bool, map[string]string) {
 		return false, responseMap
 	}
 
-	pubKey := keyStruct.PublicKey                                 //set pub key
-	ipv4 := keyStruct.IPv4Address                                 //set ipv4 address
-	resultDel := db.Where("key_id = ?", keyID).Delete(&keyStruct) //delete key from db
-	if resultDel.Error != nil {
-		log.Println("Finding key in DB", resultDel.Error)
+	pubKey := keyStruct.PublicKey                              //set pub key
+	ipv4 := keyStruct.IPv4Address                              //set ipv4 address
+	delKey := db.Where("key_id = ?", keyID).Delete(&keyStruct) //delete key from db
+	if delKey.Error != nil {
+		log.Println("Finding key in DB", delKey.Error)
 		responseMap["response"] = "Error occurred when finding the key in database"
 		return false, responseMap
 	}
@@ -41,6 +43,13 @@ func DeleteKey(keyID string) (bool, map[string]string) {
 	ipUpdate := db.Save(&ipStruct) //save data
 	if ipUpdate.Error != nil {
 		responseMap["response"] = "Error in updating IP"
+		return false, responseMap
+	}
+
+	delSub := db.Where("key_id = ?", keyID).Delete(&subStruct) //delete subcription from db
+	if delSub.Error != nil {
+		log.Println("Finding key in DB", delSub.Error)
+		responseMap["response"] = "Error occurred when finding the subscription in database"
 		return false, responseMap
 	}
 	boolRes, stringRes := manager.DeleteKey("wg0", pubKey) //delete key from wg interface

@@ -28,7 +28,7 @@ func DBStart() {
 	DBSystem = db //set global variable up
 
 	// Migrate the schema
-	errMigrate := db.AutoMigrate(&Key{}, &IP{}, &WireguardInterface{}) //Migrate tables to sqlite
+	errMigrate := db.AutoMigrate(&Key{}, &IP{}, &WireguardInterface{}, &Subscription{}) //Migrate tables to sqlite
 	if errMigrate != nil {
 		log.Fatal("Error - Migrating database", errMigrate)
 	} else {
