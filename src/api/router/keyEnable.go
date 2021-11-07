@@ -3,7 +3,6 @@ package router
 import (
 	"log"
 	"net/http"
-	"os"
 
 	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/db"
 )
@@ -22,14 +21,6 @@ func keyEnable(res http.ResponseWriter, req *http.Request) {
 		log.Println(err)
 		sendResponse(res, map[string]string{"response": err.Error()}, http.StatusBadRequest)
 		return
-	}
-
-	if os.Getenv("AUTH") != "-" { //check AUTH
-		authHeader := req.Header.Get("Authorization")
-		if os.Getenv("AUTH") != authHeader {
-			sendResponse(res, map[string]string{"response": "Authentication key is not valid"}, http.StatusBadRequest)
-			return
-		}
 	}
 
 	if incomingJson.KeyID == "" {

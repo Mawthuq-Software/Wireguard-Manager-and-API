@@ -4,6 +4,7 @@ import "github.com/gorilla/mux"
 
 func NewRouter() *mux.Router {
 	router := mux.NewRouter() //Router for routes
+	router.Use(authMiddleware)
 
 	manager := router.PathPrefix("/manager").Subrouter() //main subrouter
 
