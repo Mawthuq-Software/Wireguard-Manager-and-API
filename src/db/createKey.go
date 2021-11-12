@@ -3,10 +3,10 @@ package db
 import (
 	"errors"
 	"log"
-	"os"
 	"strconv"
 	"time"
 
+	"github.com/spf13/viper"
 	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/logger"
 	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/manager"
 	"gorm.io/gorm"
@@ -59,9 +59,9 @@ func CreateKey(pubKey string, preKey string, bwLimit int64, subEnd string) (bool
 		if ipStruct.IPv6Address != "-" {
 			responseMap["ipv6Address"] = ipStruct.IPv6Address + "/128"
 		}
-		responseMap["ipAddress"] = os.Getenv("IP_ADDRESS")
-		responseMap["dns"] = os.Getenv("DNS")
-		responseMap["allowedIPs"] = os.Getenv("ALLOWED_IP")
+		responseMap["ipAddress"] = viper.GetString("INSTANCES.wg0.IP.GLOBAL.ADDRESS")
+		responseMap["dns"] = viper.GetString("INSTANCES.wg0.IP.GLOBAL.DNS")
+		responseMap["allowedIPs"] = viper.GetString("INSTANCES.wg0.IP.GLOBAL.ALLOWED")
 		responseMap["keyID"] = keyIDStr
 	}
 

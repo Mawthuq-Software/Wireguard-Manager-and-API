@@ -3,11 +3,11 @@ package db
 import (
 	"errors"
 	"log"
-	"math"
 	"os"
 	"strconv"
 	"strings"
 
+	"github.com/spf13/viper"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -43,20 +43,20 @@ func generateIPs() {
 	var availableIPStruct IP
 	db := DBSystem
 
-	maxIPStr := os.Getenv("MAX_IP")         //get maximum IPs in env
-	maxIPInt, err := strconv.Atoi(maxIPStr) //convert to int
+	maxIPStr := viper.GetString("SERVER.MAX_IP") //get maximum IPs in config.json
+	maxIPInt, err := strconv.Atoi(maxIPStr)      //convert to int
 
 	if err != nil {
 		log.Fatal("Unable to convert IP to int", err)
 	}
 
-	ipv4Addr := os.Getenv("WG_IPV4")                //IPv4 Subnet Address
-	ipv4Splice := strings.SplitAfter(ipv4Addr, ".") //split str at decimal
-	ipv4Query := ipv4Splice[0] + ipv4Splice[1]      //get first two subnet
+	ipv4Addr := viper.GetString("INSTANCES.wg0.IP.LOCAL.IPV4.ADDRESS")  //IPv4 Subnet Address
+	ipv4Splice := strings.SplitAfter(ipv4Addr, ".")                     //split str at decimal
+	ipv4Query := ipv4Splice[0] + ipv4Splice[1]                          //get first two subnet
+	ipv6Addr := viper.GetString("INSTANCES.wg0.IP.LOCAL.IPv6.ADDRESS")  //IPv6 Subnet Address
+	ipv6Enabled := viper.GetBool("INSTANCES.wg0.IP.LOCAL.IPV6.ENABLED") //Check if IPV6 is enabled
 
-	ipv6Addr := os.Getenv("WG_IPV6") //IPv6 Subnet Address
-
-	if ipv6Addr != "-" {
+	if ipv6Enabled {
 		ipv6Splice := strings.SplitAfter(ipv6Addr, ":") //split at str at colon
 		ipv6Query := ipv6Splice[0] + ipv6Splice[1] + ipv6Splice[2] + ":"
 		result := db.Where("ipv6_address = ?", ipv6Query+maxIPStr).First(&availableIPStruct) //find if any IP has been generated
@@ -82,7 +82,6 @@ func generateIPs() {
 		modulus := maxIPInt % 242
 
 		division := maxIPInt / 242
-		division = int(math.Floor(float64(division)))
 
 		thirdOctetInt, _ := strconv.Atoi(ipv4Splice[2])
 		thirdOctetInt = thirdOctetInt + division - 1 //add octet to calculated octet and subtract one
