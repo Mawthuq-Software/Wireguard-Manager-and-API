@@ -14,7 +14,7 @@ func NewRouter() *mux.Router {
 	keys.HandleFunc("/enable", keyEnable).Methods("POST")   //post route for enabling key
 	keys.HandleFunc("/disable", keyDisable).Methods("POST") //post route for disabling key
 
-	subscriptions := manager.PathPrefix("/subscriptions").Subrouter()     //specific subrouter
+	subscriptions := manager.PathPrefix("/subscription").Subrouter()      //specific subrouter
 	subscriptions.HandleFunc("/edit", keySetSubscription).Methods("POST") //for editing subscription
 	return router
 }
