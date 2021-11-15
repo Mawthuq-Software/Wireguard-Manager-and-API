@@ -2,14 +2,16 @@ package router
 
 import (
 	"net/http"
-	"os"
+
+	"github.com/spf13/viper"
 )
 
 func authMiddleware(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		if os.Getenv("AUTH") != "-" { //check AUTH
+		auth := viper.GetString("SERVER.AUTH")
+		if auth != "-" { //check AUTH
 			authHeader := req.Header.Get("Authorization")
-			if os.Getenv("AUTH") != authHeader {
+			if auth != authHeader {
 				sendResponse(res, map[string]string{"response": "Authentication key is not valid"}, http.StatusBadRequest)
 				return
 			}
