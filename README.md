@@ -41,7 +41,7 @@ A config.json file needs to be placed in the directory `/opt/wgManagerAPI/config
 
 **Per Wireguard Instance**
 
-(instance): what this means is the wireguard instance name, i.e wg0.
+(instance): what this means is the wireguard instance name, i.e wg0. (Currently only wg0 is available, may implement multiple instances in future)
 | Variable | Purpose |
 | ------------ | ------------ |
 | INSTANCES.(instance).IP.GLOBAL.ADDRESS  | The public IP address of your server.  |
