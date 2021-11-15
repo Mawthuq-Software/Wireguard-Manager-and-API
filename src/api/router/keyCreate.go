@@ -3,7 +3,6 @@ package router
 import (
 	"log"
 	"net/http"
-	"os"
 
 	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/db"
 )
@@ -34,14 +33,6 @@ func keyCreate(res http.ResponseWriter, req *http.Request) {
 	} else if incomingJson.SubExpiry == "" {
 		sendResponse(res, map[string]string{"response": "Bad Request, subscription expiry must be filled"}, http.StatusBadRequest)
 		return
-	}
-
-	if os.Getenv("AUTH") != "-" { //check AUTH
-		authHeader := req.Header.Get("Authorization")
-		if os.Getenv("AUTH") != authHeader {
-			sendResponse(res, map[string]string{"response": "Authentication key is not valid"}, http.StatusBadRequest)
-			return
-		}
 	}
 
 	boolRes, mapRes := db.CreateKey(incomingJson.PublicKey, incomingJson.PresharedKey, incomingJson.BWLimit, incomingJson.SubExpiry) //add key to db

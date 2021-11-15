@@ -2,8 +2,8 @@ package db
 
 import (
 	"log"
-	"os"
 
+	"github.com/spf13/viper"
 	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/manager"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
@@ -23,13 +23,15 @@ func WGStart() {
 
 		pubServer := pkServer.PublicKey()
 
-		ipv4Addr := os.Getenv("WG_IPV4")
-		ipv6Addr := os.Getenv("WG_IPV6")
-
-		if ipv6Addr != "-" {
-			createWG(pkServer.String(), pubServer.String(), 51820, ipv4Addr+"/16", ipv6Addr+"/64")
+		ipv4Addr := viper.GetString("INSTANCES.wg0.IP.LOCAL.IPV4.ADDRESS")
+		ipv4Subnet := viper.GetString("INSTANCES.wg0.IP.LOCAL.IPV4.SUBNET")
+		ipv6Addr := viper.GetString("INSTANCES.wg0.IP.LOCAL.IPV6.ADDRESS")
+		ipv6Enabled := viper.GetBool("INSTANCES.wg0.IP.LOCAL.IPV6.ENABLED")
+		if ipv6Enabled {
+			ipv6Subnet := viper.GetString("INSTANCES.wg0.IP.LOCAL.IPV6.SUBNET")
+			createWG(pkServer.String(), pubServer.String(), 51820, ipv4Addr+ipv4Subnet, ipv6Addr+ipv6Subnet)
 		} else {
-			createWG(pkServer.String(), pubServer.String(), 51820, ipv4Addr+"/16", "-")
+			createWG(pkServer.String(), pubServer.String(), 51820, ipv4Addr+ipv4Subnet, "-")
 		}
 
 		peers := generatePeerArray()

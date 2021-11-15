@@ -3,8 +3,8 @@ package network
 import (
 	"fmt"
 	"log"
-	"os"
 
+	"github.com/spf13/viper"
 	"github.com/vishvananda/netlink"
 	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/db"
 )
@@ -40,16 +40,18 @@ func ipCheck(wg0 netlink.Link) {
 	ipv4Check := false //variables for checks
 	ipv6Check := false
 
-	wgIPv4 := os.Getenv("WG_IPV4") //IPv4 in env
-	wgIPv6 := os.Getenv("WG_IPV6") //IPv6 in env
+	wgIPv4 := viper.GetString("INSTANCES.wg0.IP.LOCAL.IPV4.ADDRESS") //IPv4 in config
+	ipv4Subnet := viper.GetString("INSTANCES.wg0.IP.LOCAL.IPV4.SUBNET")
+	wgIPv6 := viper.GetString("INSTANCES.wg0.IP.LOCAL.IPV6.ADDRESS") //IPv6 in config
 
-	ipv4Addr, errParsev4 := netlink.ParseAddr(wgIPv4 + "/16") //add subnet of 16 to IP
+	ipv4Addr, errParsev4 := netlink.ParseAddr(wgIPv4 + ipv4Subnet) //add subnet of 16 to IP
 	if errParsev4 != nil {
 		log.Fatal("Error - Failed to get parse IPv4 Address")
 	}
 
-	if wgIPv6 != "-" { //if IPv6 is not set to - in env
-		ipv6Addr, errParsev6 := netlink.ParseAddr(os.Getenv("WG_IPV6") + "/64")
+	if wgIPv6 != "-" { //if IPv6 is not set to - in config
+		ipv6Subnet := viper.GetString("INSTANCES.wg0.IP.LOCAL.IPV6.SUBNET")
+		ipv6Addr, errParsev6 := netlink.ParseAddr(wgIPv6 + ipv6Subnet)
 		if errParsev6 != nil {
 			log.Fatal("Error - Failed to get parse IPv6 Address")
 		}

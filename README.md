@@ -7,58 +7,51 @@ This GoLang application runs an API which can be made **https** ready using a Le
 The SQLite database contains tables which store information such as generated and available IPs, client configuration (public key and preshared key) as well as the Wireguard server own private key, public key, IP Addresses and ListenPort.
 
 ## Content
+- [Wireguard Manager And API](#wireguard-manager-and-api)
+  - [Content](#content)
+  - [Config.json File](#configjson-file)
+  - [Deployment](#deployment)
+    - [Docker](#docker)
+      - [Docker Compose](#docker-compose)
+    - [Building from source](#building-from-source)
+      - [Code](#code)
+      - [Dockerfile](#dockerfile)
+  - [Communicating with the API](#communicating-with-the-api)
+    - [Adding keys](#adding-keys)
+    - [Removing keys](#removing-keys)
+    - [Enabling keys](#enabling-keys)
+    - [Disabling keys](#disabling-keys)
+    - [Editing subscriptions](#editing-subscriptions)
+  - [Debugging](#debugging)
+    - [Logs](#logs)
+    - [FAQ](#faq)
+## Config.json File
+A config.json file needs to be placed in the directory `/opt/wgManagerAPI/config.json`. A template can be found in the `src/config/template.json`. The config.json
 
-**[1. .env File](#env-file)**
 
-**[2. Deployment](#deployment)**
-  - [2.1. Docker](#docker)
-  - [2.2. Docker-compose](#docker-compose)
-  - [2.3. Building from source](#building-from-source)
-    - [2.3.1. Code](#code)
-    - [2.3.2. Dockerfile](#dockerfile)
+| Variable | Purpose | Type |
+| ------------ | ------------ | -----------|
+|  MAX_IP | The number of IPs that will be generated in the SQLite database as well as the maximum number of clients that the server can host  | string |
+|  SERVER.SECURITY |  Enables HTTPS on the server. A FULLCHAIN_CERT and PK_CERT must be specified. Set to ``disabled`` to use a HTTP connection and anything else to enable HTTPS. By default is set to true.| boolean |
+|  SERVER.CERT.FULLCHAIN | The path to your LetsEncrypt fullchain.pem certificate. For example: ``/etc/letsencrypt/live/domain.com/fullchain.pem`` | string |
+|  SERVER.CERT.PK | The path to your LetsEncrypt privkey.pem certificate. For example: ``/etc/letsencrypt/live/domain.com/privkey.pem``  | string|
+| SERVER.AUTH  | The Authorisation key that is needed in an API request ``Authentication`` header. Setting this to a ``-`` will disable API authentication. Default value of "ABCDEFG" | string |
+| PORT  | The port that is used to run the API server (this is not the Wireguard server port). Default of port of 8443 | string |
+|  AUTOCHECK  | Enable the autochecker (automatically deletes and re-adds client keys after inactivity to increase privacy of user) by setting this to ``enabled``. Disable by setting to ``-``.| boolean |
 
-**[3. Communicating with the API](#communicating-with-the-api)**
-  - [3.1 Adding keys](#adding-keys)
-  - [3.2 Removing keys](#removing-keys)
-  - [3.3 Enabling keys](#enabling-keys)
-  - [3.4 Disabling keys](#disabling-keys)
-  - [3.5 Editing subscriptions](#editing-subscriptions )
+**Per Wireguard Instance**
 
-**[4. Debugging](#debugging)**
-  - [4.1 Logs](#logs)
-  - [4.2 FAQ](#faq)
-## .env File
-A .env file needs to be placed in the directory `/opt/wgManagerAPI/.env` containing the following:
-
-```bash
-MAX_IP=350
-SERVER_SECURITY=enabled
-FULLCHAIN_CERT=
-PK_CERT=
-AUTH=ABCDEFG
-IP_ADDRESS=
-DNS=1.1.1.1
-ALLOWED_IP=0.0.0.0/0, ::/0
-
-WG_IPV4=10.6.0.1
-WG_IPV6=fe22:22:22::1
-PORT=8443
-AUTOCHECK=enabled
-```
-| Variable  | Purpose  |
+(instance): what this means is the wireguard instance name, i.e wg0. (Currently only wg0 is available, may implement multiple instances in future)
+| Variable | Purpose |
 | ------------ | ------------ |
-|  MAX_IP | The number of IPs that will be generated in the SQLite database as well as the maximum number of clients that the server can host  |
-|  SERVER_SECURITY |  Enables HTTPS on the server. A FULLCHAIN_CERT and PK_CERT must be specified. Set to ``disabled`` to use a HTTP connection and anything else to enable HTTPS. |
-|  FULLCHAIN_CERT | The path to your LetsEncrypt fullchain.pem certificate. For example: ``/etc/letsencrypt/live/domain.com/fullchain.pem`` |
-|  PK_CERT | The path to your LetsEncrypt privkey.pem certificate. For example: ``/etc/letsencrypt/live/domain.com/privkey.pem``  |
-| AUTH  | The Authorisation key that is needed in an API request ``Authentication`` header. Setting this to a ``-`` will disable API authentication  |
-| IP_ADDRESS  | The public IP address of your server.  |
-|  DNS | The DNS address that you want wireguard clients to connect to. Can also be a local address if you are running a Pihole instance or local DNS.  |
-|  ALLOWED_IP |  By default it allows all IPv4 and IPv6 addresses through. Change to allow split tunneling. |
-| WG_IPV4  | The local IPv4 address which will be assigned to the Wireguard instance. **IMPORTANT:** the application creates a subnet of /16, please make sure you have space for this. By default it is set to ``10.6.0.1`` (p.s. this was tested with a Pihole instance running locally on the same address).|
-| WG_IPV6  | The local IPv6 address which will be assigned to the Wireguard instance. **IMPORTANT 1.1:** the application creates a subnet of /64, please make sure you have space for this. By default it is set to ``fe22:22:22::1``  **IMPORTANT 1.2:** At the current stage the docker container is not able to access IPv6, only IPv4. If you would like to disable/not use IPv6, set this to ``-``.|
-| PORT  | The port that is used to run the API server (this is not the Wireguard server port). |
-|  AUTOCHECK  | Enable the autochecker (automatically deletes and re-adds client keys after inactivity to increase privacy of user) by setting this to ``enabled``. Disable by setting to ``-``.|
+| INSTANCES.(instance).IP.GLOBAL.ADDRESS  | The public IP address of your server.  |
+|  INSTANCES.(instance).IP.GLOBAL.DNS | The DNS address that you want wireguard clients to connect to. Can also be a local address if you are running a Pihole instance or local DNS.  |
+|  INSTANCES.(instance).IP.GLOBAL.ALLOWED |  By default it allows all IPv4 and IPv6 addresses through. Change to allow split tunneling. Default of ``0.0.0.0/0, ::0``|
+|  INSTANCES.(instance).IP.LOCAL.IPV4.ADDRESS |  The local IPv4 address which will be assigned to the Wireguard instance. **IMPORTANT:** the application creates a subnet of /16, please make sure you have space for this. By default it is set to ``10.6.0.1`` (p.s. this was tested with a Pihole instance running locally on the same address).  |
+|  INSTANCES.(instance).IP.LOCAL.IPV4.SUBNET |  Subnet of the local IPv4 address.  |
+|  INSTANCES.(instance).IP.LOCAL.IPV6.ADDRESS |  The local IPv6 address which will be assigned to the Wireguard instance. **IMPORTANT:** At the current stage the docker container is not able to access IPv6, only IPv4. If you would like to disable/not use IPv6, set this to ``-``  |
+|  INSTANCES.(instance).IP.LOCAL.IPV6.SUBNET |  Subnet of the local IPv6 address.  |
+|  INSTANCES.(instance).IP.LOCAL.IPV6.ENABLED |  Enabling of IPv6 (does not work with docker)  |
 
 ## Deployment
 ### Docker
@@ -90,13 +83,13 @@ services:
         - net.ipv6.conf.all.disable_ipv6=0
 ```
 
-The docker-compose file is the easiest way to get software up and running. Do not forget to add your ``.env`` file to ``/opt/wgManagerAPI/.env``
+The docker-compose file is the easiest way to get software up and running. Do not forget to add your ``config.json`` file to ``/opt/wgManagerAPI/config.json``
 
 ### Building from source
 #### Code
 Building from source allows you to create an executable file which can be created into a Systemd service or equivalent. It also allows you to build for a different architecture such as ARM64. Running the executable must be run with sudo (recommended) or root (not recommended). 
 
-Do not forget to add your `.env` file to `/opt/wgManagerAPI/.env`
+Do not forget to add your `config.json` file to `/opt/wgManagerAPI/config.json`
 1. Install Go 1.14+ on to your machine
 2. git clone this repository
 3. ``cd wireguard-manager-and-api`` to open the repo
@@ -107,7 +100,7 @@ Do not forget to add your `.env` file to `/opt/wgManagerAPI/.env`
 #### Dockerfile
 Building a docker image from scratch enables you to create an image specific to a specific architecture such as ARM64 as prebuilt images in our docker image repository is made for AMD64 architecture.
 
-Do not forget to add your `.env`` file to ``/opt/wgManagerAPI/.env`
+Do not forget to add your ``config.json`` file to ``/opt/wgManagerAPI/config.json``
 1. Install docker
 2. Clone the git repository and open the directory
 3. ``sudo docker build -t wireguard-manager-and-api:YOURTAGHERE .`` to build the docker image locally
@@ -120,22 +113,22 @@ With almost any API error the server will give back a ``400 Bad Request`` status
 
 URL: `POST` request to `http(s)://domain.com:PORT/manager/keys`  
 Header: `Content-Type: application/json`  
-Header (If authentication is enabled): `authorization:(AUTH key from .env)`  
+Header (If authentication is enabled): `authorization:(AUTH key from config.json)`  
 Body: 
 ```json
 {
   "publicKey": "(Wireguard client public key)",
   "presharedKey": "(Wireguard client preshared key)",
   "bwLimit": (integer, megabytes, 0 for infinite),
-	"subExpiry": "(date in this FORMAT!! uses UTC for timing) 2021-Oct-28 12:39:05 PM"
+  "subExpiry": "(date in this FORMAT!! uses UTC for timing) 2021-Oct-28 12:39:05 PM"
 }
 ```
 Response:  
 Status Code `202`
 ```json
 {
-  "allowedIPs": "0.0.0.0/0, ::/0",
-  "dns": "10.6.0.1",
+  "allowedIPs": "(Allowed IPs set in config.json. Default of 0.0.0.0/0, ::0)",
+  "dns": "(DNS set in config)",
   "ipAddress": "(public IP of server)",
   "ipv4Address": "(internal IPv4 Address assigned to client) 10.6.0.10/32", 
   "ipv6Address": "(internal IPv6 Address assigned to client) fe22:22:22::10/128",
@@ -162,7 +155,7 @@ Endpoint = (public IP of server):51820
 ### Removing keys
 URL: `DELETE` request to `http(s)://domain.com:PORT/manager/keys`  
 Header: `Content-Type: application/json`  
-Header (If authentication is enabled): `authorization:(AUTH key from .env)`  
+Header (If authentication is enabled): `authorization:(AUTH key from config.json)`  
 Body:
 ```json
 {
@@ -180,7 +173,7 @@ Status Code `202`
 ### Enabling keys
 URL: `POST` request to `http(s)://domain.com:PORT/manager/keys/enable`  
 Header: `Content-Type: application/json`  
-Header (If authentication is enabled): `authorization:(AUTH key from .env)`  
+Header (If authentication is enabled): `authorization:(AUTH key from config.json)`  
 Body:
 ```json
 {
@@ -198,7 +191,7 @@ Status Code `202`
 ### Disabling keys
 URL: `POST` request to `http(s)://domain.com:PORT/manager/keys/disable`  
 Header: `Content-Type: application/json`  
-Header (If authentication is enabled): `authorization:(AUTH key from .env)`  
+Header (If authentication is enabled): `authorization:(AUTH key from config.json)`  
 Body:  
 ```json
 {
@@ -217,7 +210,7 @@ Status Code `202`
 This allows editing of subscriptions such as bandwidth, resetting bandwidth usage and changing the subscription expiry date.  
 URL: `POST` request to `http(s)://domain.com:PORT/manager/subscriptions/edit`  
 Header: `Content-Type: application/json`  
-Header (If authentication is enabled): `authorization:(AUTH key from .env)`  
+Header (If authentication is enabled): `authorization:(AUTH key from config.json)`  
 Body:  
 ```json
 {
@@ -231,7 +224,7 @@ Response:
 Status Code `202`
 ```json
 {
-  "response": "Disabled key successfully"
+  "response": "Updated successfully"
 }
 ```
 
@@ -249,7 +242,7 @@ If the Wireguard Manager and API application fails to start you should always lo
 **Q:** I have built from source code but unable to successfully route clients through the VPN  
 **A:** You may need the iptables rule: ``sudo iptables -t nat -A POSTROUTING -o (INTERFACE I.E eth0 or enp0s3) -j MASQUERADE``. This will be required on boot everytime. We will try and implement this into the program in the future.
 
-**Q:** Do I need to use a wg0.conf file?  
+**Q:** Do I need to use a  wireguard (wg0.conf) file?  
 **A:** No, and please do not try, it may mess up some of the functionality we provide such as automatic deleting and re-adding keys.
 
 
