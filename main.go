@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"os"
 
-	"github.com/joho/godotenv"
+	"github.com/spf13/viper"
 	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/api"
 	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/autocheck"
+	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/config"
 	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/db"
 	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/logger"
 	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/network"
@@ -16,12 +16,7 @@ func main() {
 	fmt.Println("WG MANAGER AND API STARTING UP")
 
 	fmt.Println("Env file loading - 1/6")
-	errEnv := godotenv.Load("/opt/wgManagerAPI/.env")
-	if errEnv != nil {
-		fmt.Println("Env failed to load - FAILED")
-		os.Exit(1)
-	}
-
+	config.LoadConfig()
 	fmt.Println("Logger starting up - 2/6")
 	logger.LoggerSetup()
 
@@ -31,7 +26,8 @@ func main() {
 	fmt.Println("Starting of network - 4/6")
 	network.SetupWG()
 
-	if os.Getenv("AUTOCHECK") == "enabled" {
+	autocheckBool := viper.GetBool("SERVER.AUTOCHECK")
+	if autocheckBool {
 		fmt.Println("Starting autochecker - 5/6")
 		autocheck.AutoStart()
 	} else {
