@@ -3,10 +3,6 @@ package router
 import (
 	"log"
 	"net/http"
-<<<<<<< HEAD
-	"os"
-=======
->>>>>>> deploy
 
 	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/db"
 )
