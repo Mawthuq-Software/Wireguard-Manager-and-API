@@ -62,7 +62,7 @@ func BWPeerCheck() bool {
 			if !logger.ErrorHandler("Error - Parsing stored time ", subErr) {
 				continue
 			}
-			if bwStoredUsage+(bwCurrent/1000000) > bwLimit || currentTime.After(subFormatted) {
+			if (bwStoredUsage+(bwCurrent/1000000) > bwLimit || currentTime.After(subFormatted)) && bwLimit != 0 {
 				keyID := subStruct.KeyID
 				updatePeerBW(currentPeer)       //update bandwidth before disabling
 				DisableKey(strconv.Itoa(keyID)) //disable key if bandwidth limit reached or subscription end#

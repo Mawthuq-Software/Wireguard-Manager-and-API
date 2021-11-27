@@ -59,9 +59,9 @@ func CreateKey(pubKey string, preKey string, bwLimit int64, subEnd string) (bool
 		if ipStruct.IPv6Address != "-" {
 			responseMap["ipv6Address"] = ipStruct.IPv6Address + "/128"
 		}
-		responseMap["ipAddress"] = viper.GetString("INSTANCES.wg0.IP.GLOBAL.ADDRESS")
-		responseMap["dns"] = viper.GetString("INSTANCES.wg0.IP.GLOBAL.DNS")
-		responseMap["allowedIPs"] = viper.GetString("INSTANCES.wg0.IP.GLOBAL.ALLOWED")
+		responseMap["ipAddress"] = viper.GetString("INSTANCE.IP.GLOBAL.ADDRESS")
+		responseMap["dns"] = viper.GetString("INSTANCE.IP.GLOBAL.DNS")
+		responseMap["allowedIPs"] = viper.GetString("INSTANCE.IP.GLOBAL.ALLOWED")
 		responseMap["keyID"] = keyIDStr
 	}
 
