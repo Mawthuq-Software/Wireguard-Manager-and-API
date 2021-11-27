@@ -50,11 +50,11 @@ func generateIPs() {
 		log.Fatal("Unable to convert IP to int", err)
 	}
 
-	ipv4Addr := viper.GetString("INSTANCES.wg0.IP.LOCAL.IPV4.ADDRESS")  //IPv4 Subnet Address
-	ipv4Splice := strings.SplitAfter(ipv4Addr, ".")                     //split str at decimal
-	ipv4Query := ipv4Splice[0] + ipv4Splice[1]                          //get first two subnet
-	ipv6Addr := viper.GetString("INSTANCES.wg0.IP.LOCAL.IPv6.ADDRESS")  //IPv6 Subnet Address
-	ipv6Enabled := viper.GetBool("INSTANCES.wg0.IP.LOCAL.IPV6.ENABLED") //Check if IPV6 is enabled
+	ipv4Addr := viper.GetString("INSTANCE.IP.LOCAL.IPV4.ADDRESS")  //IPv4 Subnet Address
+	ipv4Splice := strings.SplitAfter(ipv4Addr, ".")                //split str at decimal
+	ipv4Query := ipv4Splice[0] + ipv4Splice[1]                     //get first two subnet
+	ipv6Addr := viper.GetString("INSTANCE.IP.LOCAL.IPv6.ADDRESS")  //IPv6 Subnet Address
+	ipv6Enabled := viper.GetBool("INSTANCE.IP.LOCAL.IPV6.ENABLED") //Check if IPV6 is enabled
 
 	if ipv6Enabled {
 		ipv6Splice := strings.SplitAfter(ipv6Addr, ":") //split at str at colon

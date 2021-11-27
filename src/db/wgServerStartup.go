@@ -23,12 +23,12 @@ func WGStart() {
 
 		pubServer := pkServer.PublicKey()
 
-		ipv4Addr := viper.GetString("INSTANCES.wg0.IP.LOCAL.IPV4.ADDRESS")
-		ipv4Subnet := viper.GetString("INSTANCES.wg0.IP.LOCAL.IPV4.SUBNET")
-		ipv6Addr := viper.GetString("INSTANCES.wg0.IP.LOCAL.IPV6.ADDRESS")
-		ipv6Enabled := viper.GetBool("INSTANCES.wg0.IP.LOCAL.IPV6.ENABLED")
+		ipv4Addr := viper.GetString("INSTANCE.IP.LOCAL.IPV4.ADDRESS")
+		ipv4Subnet := viper.GetString("INSTANCE.IP.LOCAL.IPV4.SUBNET")
+		ipv6Addr := viper.GetString("INSTANCE.IP.LOCAL.IPV6.ADDRESS")
+		ipv6Enabled := viper.GetBool("INSTANCE.IP.LOCAL.IPV6.ENABLED")
 		if ipv6Enabled {
-			ipv6Subnet := viper.GetString("INSTANCES.wg0.IP.LOCAL.IPV6.SUBNET")
+			ipv6Subnet := viper.GetString("INSTANCE.IP.LOCAL.IPV6.SUBNET")
 			createWG(pkServer.String(), pubServer.String(), 51820, ipv4Addr+ipv4Subnet, ipv6Addr+ipv6Subnet)
 		} else {
 			createWG(pkServer.String(), pubServer.String(), 51820, ipv4Addr+ipv4Subnet, "-")
