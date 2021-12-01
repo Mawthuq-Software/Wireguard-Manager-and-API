@@ -20,19 +20,19 @@ func keySetSubscription(res http.ResponseWriter, req *http.Request) {
 	err := parseResponse(req, &incomingJson) //parse JSON
 	if err != nil {
 		log.Println("Error - Parsing request", err)
-		sendResponse(res, map[string]string{"response": err.Error()}, http.StatusBadRequest)
+		sentStandardRes(res, map[string]string{"response": err.Error()}, http.StatusBadRequest)
 		return
 	}
 
 	if incomingJson.KeyID == "" {
-		sendResponse(res, map[string]string{"response": "Bad Request, keyID must be filled"}, http.StatusBadRequest)
+		sentStandardRes(res, map[string]string{"response": "Bad Request, keyID must be filled"}, http.StatusBadRequest)
 		return
 	}
 
 	boolRes, mapRes := db.SetSubscription(incomingJson.KeyID, incomingJson.BWLimit, incomingJson.SubExpiry, incomingJson.BWReset) //add key to db
 	if !boolRes {
-		sendResponse(res, mapRes, http.StatusBadRequest)
+		sentStandardRes(res, mapRes, http.StatusBadRequest)
 	} else {
-		sendResponse(res, mapRes, http.StatusAccepted)
+		sentStandardRes(res, mapRes, http.StatusAccepted)
 	}
 }

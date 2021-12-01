@@ -19,13 +19,13 @@ func keyDisable(res http.ResponseWriter, req *http.Request) {
 	err := parseResponse(req, &incomingJson)
 	if err != nil {
 		log.Println(err)
-		sendResponse(res, map[string]string{"response": err.Error()}, http.StatusBadRequest)
+		sentStandardRes(res, map[string]string{"response": err.Error()}, http.StatusBadRequest)
 		return
 	}
 
 	if incomingJson.KeyID == "" {
 		jsonResponse["response"] = "Bad Request, keyID needs to be filled"
-		sendResponse(res, map[string]string{"response": "Bad Request, keyID needs to be filled"}, http.StatusBadRequest)
+		sentStandardRes(res, map[string]string{"response": "Bad Request, keyID needs to be filled"}, http.StatusBadRequest)
 		return
 	}
 
@@ -33,8 +33,8 @@ func keyDisable(res http.ResponseWriter, req *http.Request) {
 
 	boolRes, mapRes := db.DisableKey(keyID)
 	if !boolRes {
-		sendResponse(res, mapRes, http.StatusBadRequest)
+		sentStandardRes(res, mapRes, http.StatusBadRequest)
 	} else {
-		sendResponse(res, mapRes, http.StatusAccepted)
+		sentStandardRes(res, mapRes, http.StatusAccepted)
 	}
 }

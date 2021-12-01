@@ -21,6 +21,7 @@ The SQLite database contains tables which store information such as generated an
     - [Removing keys](#removing-keys)
     - [Enabling keys](#enabling-keys)
     - [Disabling keys](#disabling-keys)
+    - [Getting all keys](#getting-all-keys)
     - [Editing subscriptions](#editing-subscriptions)
   - [Debugging](#debugging)
     - [Logs](#logs)
@@ -203,6 +204,36 @@ Status Code `202`
 ```json
 {
   "response": "Disabled key successfully"
+}
+```
+### Getting all keys
+This requests all keys from the database. It is basically getting all information from the Keys table.
+
+URL: `GET` request to `http(s)://domain.com:PORT/manager/key`  
+Header (If authentication is enabled): `authorization:(AUTH key from config.json)`
+
+Response:  
+Status Code `202`
+```json
+{
+  "response": "All key successfully parsed",
+  "Keys": [
+    {
+      "KeyID": 1,
+      "PublicKey": "Si0sJ6YoYOvyc96Ln6ZkBYRXOz08BNJfM3iFjoAiyU=",
+      "PresharedKey": "AEDWepAAXPzWzatzShkKKJ4UaWscDMetlDq4d0OXfp8=",
+      "IPv4Address": "10.6.0.10",
+      "Enabled": "true"
+    },
+    {
+      "KeyID": 2,
+      "PublicKey": "0ba1shYHi9swnUvawqXuVDSM//S9OW2KxdvoaF69NHg=",
+      "PresharedKey": "dKVFJlFK387Ht174ol0eeW/gjVfZZGLIfSN4egInLgY=",
+      "IPv4Address": "10.6.0.100",
+      "Enabled": "true"
+    },
+    ...
+  ]
 }
 ```
 

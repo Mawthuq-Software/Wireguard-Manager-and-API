@@ -8,7 +8,8 @@ func NewRouter() *mux.Router {
 
 	manager := router.PathPrefix("/manager").Subrouter() //main subrouter
 
-	keys := manager.PathPrefix("/key").Subrouter()          //specific subrouter
+	keys := manager.PathPrefix("/key").Subrouter() //specific subrouter
+	keys.HandleFunc("", getKeys).Methods("GET")
 	keys.HandleFunc("", keyCreate).Methods("POST")          //post route for adding keys
 	keys.HandleFunc("", keyRemove).Methods("DELETE")        //delete route for removing keys
 	keys.HandleFunc("/enable", keyEnable).Methods("POST")   //post route for enabling key

@@ -12,7 +12,7 @@ func authMiddleware(handler http.Handler) http.Handler {
 		if auth != "-" { //check AUTH
 			authHeader := req.Header.Get("Authorization")
 			if auth != authHeader {
-				sendResponse(res, map[string]string{"response": "Authentication key is not valid"}, http.StatusBadRequest)
+				sentStandardRes(res, map[string]string{"response": "Authentication key is not valid"}, http.StatusBadRequest)
 				return
 			}
 		}
