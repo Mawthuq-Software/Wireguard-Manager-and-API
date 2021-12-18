@@ -1,6 +1,8 @@
 package db
 
-import "log"
+import (
+	"log"
+)
 
 func createWG(PrivateKey string, PublicKey string, ListenPort int, IPv4Address string, IPv6Address string) {
 	log.Println("Info - Creating wireguard interface")

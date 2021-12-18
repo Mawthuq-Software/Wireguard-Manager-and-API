@@ -1,6 +1,7 @@
 package db
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/spf13/viper"
@@ -27,16 +28,23 @@ func WGStart() {
 		ipv4Subnet := viper.GetString("INSTANCE.IP.LOCAL.IPV4.SUBNET")
 		ipv6Addr := viper.GetString("INSTANCE.IP.LOCAL.IPV6.ADDRESS")
 		ipv6Enabled := viper.GetBool("INSTANCE.IP.LOCAL.IPV6.ENABLED")
+
+		wgPort := viper.GetInt("INSTANCE.PORT")
+
 		if ipv6Enabled {
 			ipv6Subnet := viper.GetString("INSTANCE.IP.LOCAL.IPV6.SUBNET")
-			createWG(pkServer.String(), pubServer.String(), 51820, ipv4Addr+ipv4Subnet, ipv6Addr+ipv6Subnet)
+			createWG(pkServer.String(), pubServer.String(), wgPort, ipv4Addr+ipv4Subnet, ipv6Addr+ipv6Subnet)
 		} else {
-			createWG(pkServer.String(), pubServer.String(), 51820, ipv4Addr+ipv4Subnet, "-")
+			createWG(pkServer.String(), pubServer.String(), wgPort, ipv4Addr+ipv4Subnet, "-")
 		}
 
 		peers := generatePeerArray()
-		manager.AddPeersInterface("wg0", pkServer.String(), 51820, peers)
+		manager.AddPeersInterface("wg0", pkServer.String(), wgPort, peers)
+		fmt.Println("Created wireguard instance on port", wgPort)
 		return
+	} else {
+		log.Println("Wireguard instance in database was found - overriding some values.")
+		fmt.Println("Created wireguard instance on port", wgInterface.ListenPort)
 	}
 
 	peers := generatePeerArray()
