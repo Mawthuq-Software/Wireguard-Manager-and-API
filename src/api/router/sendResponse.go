@@ -20,3 +20,10 @@ func sendKeysRes(res http.ResponseWriter, responseStruct db.ReturnKeysRes, httpS
 	jsonResp, _ := json.Marshal(responseStruct)
 	res.Write(jsonResp)
 }
+
+func sendSubsRes(res http.ResponseWriter, responseStruct db.ReturnSubsRes, httpStatusCode int) {
+	res.Header().Set("Content-Type", "application/json")
+	res.WriteHeader(httpStatusCode)
+	jsonResp, _ := json.Marshal(responseStruct)
+	res.Write(jsonResp)
+}
