@@ -22,8 +22,8 @@ func SetupWG() {
 func addIP(instance netlink.Link, ipAddr *netlink.Addr) {
 	ipAddErr := netlink.AddrAdd(instance, ipAddr)
 	if ipAddErr != nil {
-		fmt.Println("Error - Failed to add IP address ", ipAddErr)
-		log.Println("Error - Failed to add IP address ", ipAddErr)
+		fmt.Println("Error - Failed to add IP address", ipAddErr)
+		log.Println("Error - Failed to add IP address", ipAddErr)
 	} else {
 		log.Println("Info - Added IP address to interface")
 	}
@@ -57,12 +57,12 @@ func ipCheck(wg0 netlink.Link) {
 	for i := 0; i < len(IPv4Addresses); i++ {
 		ipv4AddrParse, errParsev4 := netlink.ParseAddr(IPv4Addresses[i] + "/32") //add subnet of 16 to IP
 		if errParsev4 != nil {
-			log.Fatal("Error - Failed to get parse IPv4 Address")
+			log.Fatal("Error - Failed to parse IPv4 Address")
 		}
 		addIP(devInterface, ipv4AddrParse)
 	}
 
-	for i := 0; i < len(IPv4Addresses); i++ {
+	for i := 0; i < len(IPv6Addresses); i++ {
 		ipv6AddrParse, errParsev6 := netlink.ParseAddr(IPv6Addresses[i] + "/128") //add subnet of 16 to IP
 		if errParsev6 != nil {
 			log.Fatal("Error - Failed to get parse IPv6 Address")
@@ -72,14 +72,14 @@ func ipCheck(wg0 netlink.Link) {
 
 	ipv4Addr, errParsev4 := netlink.ParseAddr(wgIPv4 + ipv4Subnet) //add subnet of 16 to IP
 	if errParsev4 != nil {
-		log.Fatal("Error - Failed to get parse IPv4 Address")
+		log.Println("Error - Failed to parse IPv4 Address")
 	}
 
 	if wgIPv6 != "-" { //if IPv6 is not set to - in config
 		ipv6Subnet := viper.GetString("INSTANCE.IP.LOCAL.IPV6.SUBNET")
 		ipv6Addr, errParsev6 := netlink.ParseAddr(wgIPv6 + ipv6Subnet)
 		if errParsev6 != nil {
-			log.Fatal("Error - Failed to get parse IPv6 Address")
+			log.Println("Error - Failed to parse IPv6 Address")
 		}
 		for i := 0; i < len(IPs); i++ { //checks if IPs wanted exist
 			if IPs[i].Equal(*ipv4Addr) { //Check if IPv4 address wanted is already present
