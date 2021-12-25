@@ -22,6 +22,10 @@ func ReturnKeys() (bool, ReturnKeysRes) {
 		return false, responseMap
 	}
 
+	for i := 0; i < len(allKeysStruct); i++ {
+		allKeysStruct[i].PresharedKey = "REDACTED"
+	}
+
 	responseMap.Response = "All key successfully parsed"
 	responseMap.Keys = allKeysStruct
 	return true, responseMap
