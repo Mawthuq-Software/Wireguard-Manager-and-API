@@ -12,6 +12,7 @@ type keyCreateJSON struct {
 	PresharedKey string `json:"presharedKey"`
 	BWLimit      int64  `json:"bwLimit"`
 	SubExpiry    string `json:"subExpiry"`
+	IPIndex      int    `json:"ipIndex"`
 }
 
 func keyCreate(res http.ResponseWriter, req *http.Request) {
@@ -33,9 +34,12 @@ func keyCreate(res http.ResponseWriter, req *http.Request) {
 	} else if incomingJson.SubExpiry == "" {
 		sentStandardRes(res, map[string]string{"response": "Bad Request, subscription expiry must be filled"}, http.StatusBadRequest)
 		return
+	} else if incomingJson.IPIndex < 0 {
+		sentStandardRes(res, map[string]string{"response": "Bad Request, IP index must be greater than one"}, http.StatusBadRequest)
+		return
 	}
 
-	boolRes, mapRes := db.CreateKey(incomingJson.PublicKey, incomingJson.PresharedKey, incomingJson.BWLimit, incomingJson.SubExpiry) //add key to db
+	boolRes, mapRes := db.CreateKey(incomingJson.PublicKey, incomingJson.PresharedKey, incomingJson.BWLimit, incomingJson.SubExpiry, incomingJson.IPIndex) //add key to db
 	if !boolRes {
 		sentStandardRes(res, mapRes, http.StatusBadRequest)
 	} else {
