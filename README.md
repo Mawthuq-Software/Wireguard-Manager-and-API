@@ -1,3 +1,7 @@
+[![Discord](https://img.shields.io/discord/900096719482654780?color=D6AD5B&labelColor=131313&style=for-the-badge&label=Discord&logo=discord)](https://discord.gg/fXMzVqb3qB "Chat and get support from the team and community.")
+[![Gitlab](https://img.shields.io/gitlab/pipeline-status/mawthuq-software/wireguard-manager-and-api?branch=main&color=D6AD5B&labelColor=131313&logoColor=D6AD5B&style=for-the-badge&label=Main-Branch&logo=gitlab)](https://g.codefresh.io/public/accounts/sunnahvpn/pipelines/new/610a9aa2b902ba4976f1c58d?filter=page:1 "View public build logs for docker container.")
+[![GitHub Downloads](https://img.shields.io/github/downloads/Mawthuq-Software/wireguard-manager-and-api/total?color=D6AD5B&labelColor=131313&style=for-the-badge&label=Downloads&logo=github)](https://github.com/Mawthuq-Software/wireguard-manager-and-api "Download the API today")
+
 # Wireguard Manager And API
 
 A manager and API to add, remove clients as well as other features such as an auto reapplier which deletes and adds back a client after inactivity to increase their privacy by removing their IP address from memory.
