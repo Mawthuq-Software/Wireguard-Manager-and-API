@@ -47,7 +47,7 @@ A config.json file needs to be placed in the directory `/opt/wgManagerAPI/config
 |  INSTANCE.IP.LOCAL.IPV6.ADDRESS |  The local IPv6 address which will be assigned to the Wireguard instance. **IMPORTANT:** At the current stage the docker container is not able to access IPv6, only IPv4. If you would like to disable/not use IPv6, set this to ``-``  | string |
 |  INSTANCE.IP.LOCAL.IPV6.SUBNET |  Subnet of the local IPv6 address.  | string |
 |  INSTANCE.IP.LOCAL.IPV6.ENABLED |  Enabling of IPv6 (does not work with docker) |  boolean |
-|  INSTANCE.PORT |  Wireguard server port. Default value of 51820.  | integer |
+|  INSTANCE.PORT |  Wireguard server port. Default value of 51820. **IMPORTANT:** this is set only once! To change the wireguard port you must manually edit the database. | integer |
 
 ### API server settings
 | Variable | Purpose | Type |
