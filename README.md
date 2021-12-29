@@ -10,6 +10,8 @@ The SQLite database contains tables which store information such as generated an
 - [Wireguard Manager And API](#wireguard-manager-and-api)
   - [Content](#content)
   - [Config.json File](#configjson-file)
+    - [Instance settings](#instance-settings)
+    - [API server settings](#api-server-settings)
   - [Deployment](#deployment)
     - [Docker](#docker)
       - [Docker Compose](#docker-compose)
@@ -21,37 +23,39 @@ The SQLite database contains tables which store information such as generated an
     - [Removing keys](#removing-keys)
     - [Enabling keys](#enabling-keys)
     - [Disabling keys](#disabling-keys)
+    - [Getting all keys](#getting-all-keys)
     - [Editing subscriptions](#editing-subscriptions)
   - [Debugging](#debugging)
     - [Logs](#logs)
     - [FAQ](#faq)
 ## Config.json File
-A config.json file needs to be placed in the directory `/opt/wgManagerAPI/config.json`. A template can be found in the `src/config/template.json`. The config.json
+A config.json file needs to be placed in the directory `/opt/wgManagerAPI/config.json`. A template can be found in the `src/config/template.json`.
 
+### Instance settings
+| Variable | Purpose | Type |
+| ------------ | ------------ | ------------ |
+| INSTANCE.IP.GLOBAL.ADDRESS.IPV4  | The public IPv4 **addresses** of your server.  Must be set.| string array |
+| INSTANCE.IP.GLOBAL.ADDRESS.IPV6  | The public IPv6 **addresses** of your server.  Must be set.| string array |
+|  INSTANCE.IP.GLOBAL.DNS | The DNS address that you want wireguard clients to connect to. Can also be a local address if you are running a Pihole instance or local DNS.  | string |
+|  INSTANCE.IP.GLOBAL.ALLOWED |  By default it allows all IPv4 and IPv6 addresses through. Change to allow split tunneling. Default of ``0.0.0.0/0, ::0``| string |
+|  INSTANCE.IP.LOCAL.IPV4.ADDRESS |  The local IPv4 address which will be assigned to the Wireguard instance. **IMPORTANT:** the application creates a subnet of /16, please make sure you have space for this. By default it is set to ``10.6.0.1`` (p.s. this was tested with a Pihole instance running locally on the same address).  |  string |
+|  INSTANCE.IP.LOCAL.IPV4.SUBNET |  Subnet of the local IPv4 address.  |  string |
+|  INSTANCE.IP.LOCAL.IPV6.ADDRESS |  The local IPv6 address which will be assigned to the Wireguard instance. **IMPORTANT:** At the current stage the docker container is not able to access IPv6, only IPv4. If you would like to disable/not use IPv6, set this to ``-``  | string |
+|  INSTANCE.IP.LOCAL.IPV6.SUBNET |  Subnet of the local IPv6 address.  | string |
+|  INSTANCE.IP.LOCAL.IPV6.ENABLED |  Enabling of IPv6 (does not work with docker) |  boolean |
+|  INSTANCE.PORT |  Wireguard server port. Default value of 51820.  | integer |
 
+### API server settings
 | Variable | Purpose | Type |
 | ------------ | ------------ | -----------|
-|  MAX_IP | The number of IPs that will be generated in the SQLite database as well as the maximum number of clients that the server can host  | string |
+|  SERVER.MAX_IP | The number of IPs that will be generated in the SQLite database as well as the maximum number of clients that the server can host  | string |
 |  SERVER.SECURITY |  Enables HTTPS on the server. A FULLCHAIN_CERT and PK_CERT must be specified. Set to ``disabled`` to use a HTTP connection and anything else to enable HTTPS. By default is set to true.| boolean |
 |  SERVER.CERT.FULLCHAIN | The path to your LetsEncrypt fullchain.pem certificate. For example: ``/etc/letsencrypt/live/domain.com/fullchain.pem`` | string |
 |  SERVER.CERT.PK | The path to your LetsEncrypt privkey.pem certificate. For example: ``/etc/letsencrypt/live/domain.com/privkey.pem``  | string|
 | SERVER.AUTH  | The Authorisation key that is needed in an API request ``Authentication`` header. Setting this to a ``-`` will disable API authentication. Default value of "ABCDEFG" | string |
-| PORT  | The port that is used to run the API server (this is not the Wireguard server port). Default of port of 8443 | string |
-|  AUTOCHECK  | Enable the autochecker (automatically deletes and re-adds client keys after inactivity to increase privacy of user) by setting this to ``enabled``. Disable by setting to ``-``.| boolean |
-
-**Per Wireguard Instance**
-
-(instance): what this means is the wireguard instance name, i.e wg0. (Currently only wg0 is available, may implement multiple instances in future)
-| Variable | Purpose |
-| ------------ | ------------ |
-| INSTANCES.(instance).IP.GLOBAL.ADDRESS  | The public IP address of your server.  |
-|  INSTANCES.(instance).IP.GLOBAL.DNS | The DNS address that you want wireguard clients to connect to. Can also be a local address if you are running a Pihole instance or local DNS.  |
-|  INSTANCES.(instance).IP.GLOBAL.ALLOWED |  By default it allows all IPv4 and IPv6 addresses through. Change to allow split tunneling. Default of ``0.0.0.0/0, ::0``|
-|  INSTANCES.(instance).IP.LOCAL.IPV4.ADDRESS |  The local IPv4 address which will be assigned to the Wireguard instance. **IMPORTANT:** the application creates a subnet of /16, please make sure you have space for this. By default it is set to ``10.6.0.1`` (p.s. this was tested with a Pihole instance running locally on the same address).  |
-|  INSTANCES.(instance).IP.LOCAL.IPV4.SUBNET |  Subnet of the local IPv4 address.  |
-|  INSTANCES.(instance).IP.LOCAL.IPV6.ADDRESS |  The local IPv6 address which will be assigned to the Wireguard instance. **IMPORTANT:** At the current stage the docker container is not able to access IPv6, only IPv4. If you would like to disable/not use IPv6, set this to ``-``  |
-|  INSTANCES.(instance).IP.LOCAL.IPV6.SUBNET |  Subnet of the local IPv6 address.  |
-|  INSTANCES.(instance).IP.LOCAL.IPV6.ENABLED |  Enabling of IPv6 (does not work with docker)  |
+| SERVER.PORT  | The port that is used to run the API server (this is not the Wireguard server port). Default of port of 8443 | string |
+| SERVER.AUTOCHECK | Enable the autochecker (automatically deletes and re-adds client keys after inactivity to increase privacy of user) by setting this to ``enabled``. Disable by setting to ``-``.| boolean |
+|  SERVER.INTERFACE | The interface of your network card. Usually eth0.| string |
 
 ## Deployment
 ### Docker
@@ -120,7 +124,8 @@ Body:
   "publicKey": "(Wireguard client public key)",
   "presharedKey": "(Wireguard client preshared key)",
   "bwLimit": (integer, megabytes, 0 for infinite),
-  "subExpiry": "(date in this FORMAT!! uses UTC for timing) 2021-Oct-28 12:39:05 PM"
+  "subExpiry": "(date in this FORMAT!! uses UTC for timing) 2021-Oct-28 12:39:05 PM",
+  "ipIndex": "(the integer index of the ip address you want to use. Index is the IP in the config.json on the API server.)
 }
 ```
 Response:  
@@ -203,6 +208,36 @@ Status Code `202`
 ```json
 {
   "response": "Disabled key successfully"
+}
+```
+### Getting all keys
+This requests all keys from the database. It is basically getting all information from the Keys table.
+
+URL: `GET` request to `http(s)://domain.com:PORT/manager/key`  
+Header (If authentication is enabled): `authorization:(AUTH key from config.json)`
+
+Response:  
+Status Code `202`
+```json
+{
+  "response": "All key successfully parsed",
+  "Keys": [
+    {
+      "KeyID": 1,
+      "PublicKey": "Si0sJ6YoYOvyc96Ln6ZkBYRXOz08BNJfM3iFjoAiyU=",
+      "PresharedKey": "AEDWepAAXPzWzatzShkKKJ4UaWscDMetlDq4d0OXfp8=",
+      "IPv4Address": "10.6.0.10",
+      "Enabled": "true"
+    },
+    {
+      "KeyID": 2,
+      "PublicKey": "0ba1shYHi9swnUvawqXuVDSM//S9OW2KxdvoaF69NHg=",
+      "PresharedKey": "dKVFJlFK387Ht174ol0eeW/gjVfZZGLIfSN4egInLgY=",
+      "IPv4Address": "10.6.0.100",
+      "Enabled": "true"
+    },
+    ...
+  ]
 }
 ```
 

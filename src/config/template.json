@@ -1,25 +1,33 @@
 {
-  "INSTANCES": {
-    "wg0": {
-      "IP": {
-        "LOCAL": {
-          "IPV4": {
-            "ADDRESS" : "10.6.0.1",
-            "SUBNET": "/16"
-          },
-          "IPV6": {
-            "ADDRESS": "fe22:22:22::3",
-            "SUBNET": "/64",
-            "ENABLED": true
-          }
+  "INSTANCE": {
+    "IP": {
+      "LOCAL": {
+        "IPV4": {
+          "ADDRESS" : "10.6.0.1",
+          "SUBNET": "/16"
         },
-        "GLOBAL": {
-          "DNS": "1.1.1.1",
-          "ADDRESS": "222.222.222.222",
-          "ALLOWED": "0.0.0.0/0, ::/0"
+        "IPV6": {
+          "ADDRESS": "fe22:22:22::3",
+          "SUBNET": "/64",
+          "ENABLED": true
         }
+      },
+      "GLOBAL": {
+        "DNS": "1.1.1.1",
+        "ADDRESS": {
+          "IPV4": [
+            "222.222.222.222",
+            "222.222.222.222"
+          ],
+          "IPV6": [
+            "2a01:4f9:c010:b234::1",
+            "2a01:4f9:c010:b234::2"
+          ]
+        },
+        "ALLOWED": "0.0.0.0/0, ::/0"
       }
-    }
+    },
+    "PORT": 51821
   },
   "SERVER": {
     "PORT": "8443",
@@ -30,6 +38,7 @@
       "FULLCHAIN": "",
       "PK": ""
     },
-    "AUTH": "ABCDEFG"
+    "AUTH": "ABCDEFG",
+    "INTERFACE": "eth0"
   }
 }
