@@ -12,11 +12,19 @@ import (
 	"gorm.io/gorm"
 )
 
-func CreateKey(pubKey string, preKey string, bwLimit int64, subEnd string) (bool, map[string]string) {
+func CreateKey(pubKey string, preKey string, bwLimit int64, subEnd string, ipIndex int) (bool, map[string]string) {
 	var ipStruct IP
 	var wgStruct WireguardInterface
 	responseMap := make(map[string]string)
 	db := DBSystem
+
+	//Must be first to prevent uneccessary key additions to DB
+	ipMap := viper.GetStringSlice("INSTANCE.IP.GLOBAL.ADDRESS.IPV4")
+	if len(ipMap)-1 < ipIndex {
+		responseMap["response"] = "IP index does not exist"
+		return false, responseMap
+	}
+	ipSelected := ipMap[ipIndex]
 
 	_, subErr := time.Parse("2006-Jan-02 03:04:05 PM", subEnd)
 	if !logger.ErrorHandler("Error - Parsing stored time ", subErr) {
@@ -59,9 +67,10 @@ func CreateKey(pubKey string, preKey string, bwLimit int64, subEnd string) (bool
 		if ipStruct.IPv6Address != "-" {
 			responseMap["ipv6Address"] = ipStruct.IPv6Address + "/128"
 		}
-		responseMap["ipAddress"] = viper.GetString("INSTANCES.wg0.IP.GLOBAL.ADDRESS")
-		responseMap["dns"] = viper.GetString("INSTANCES.wg0.IP.GLOBAL.DNS")
-		responseMap["allowedIPs"] = viper.GetString("INSTANCES.wg0.IP.GLOBAL.ALLOWED")
+
+		responseMap["ipAddress"] = ipSelected
+		responseMap["dns"] = viper.GetString("INSTANCE.IP.GLOBAL.DNS")
+		responseMap["allowedIPs"] = viper.GetString("INSTANCE.IP.GLOBAL.ALLOWED")
 		responseMap["keyID"] = keyIDStr
 	}
 

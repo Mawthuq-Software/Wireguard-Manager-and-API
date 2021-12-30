@@ -19,21 +19,21 @@ func keyRemove(res http.ResponseWriter, req *http.Request) {
 	err := parseResponse(req, &incomingJson)
 	if err != nil {
 		log.Println(err)
-		sendResponse(res, map[string]string{"response": err.Error()}, http.StatusBadRequest)
+		sentStandardRes(res, map[string]string{"response": err.Error()}, http.StatusBadRequest)
 		return
 	}
 
 	if incomingJson.KeyID == "" {
 		jsonResponse["response"] = "Bad Request, keyID needs to be filled"
-		sendResponse(res, map[string]string{"response": "Bad Request, keyID needs to be filled"}, http.StatusBadRequest)
+		sentStandardRes(res, map[string]string{"response": "Bad Request, keyID needs to be filled"}, http.StatusBadRequest)
 		return
 	}
 
 	boolRes, mapRes := db.DeleteKey(incomingJson.KeyID)
 	if !boolRes {
-		sendResponse(res, mapRes, http.StatusBadRequest)
+		sentStandardRes(res, mapRes, http.StatusBadRequest)
 	} else {
 		//need to add in pubKey of server, dns, allowedIP
-		sendResponse(res, mapRes, http.StatusAccepted)
+		sentStandardRes(res, mapRes, http.StatusAccepted)
 	}
 }
