@@ -1,9 +1,14 @@
 package router
 
-import "github.com/gorilla/mux"
+import (
+	"net/http"
+
+	"github.com/gorilla/mux"
+)
 
 func NewRouter() *mux.Router {
 	router := mux.NewRouter() //Router for routes
+	router.Use(setHeader)     //need to allow CORS and OPTIONS
 	router.Use(authMiddleware)
 
 	manager := router.PathPrefix("/manager").Subrouter() //main subrouter
@@ -18,5 +23,7 @@ func NewRouter() *mux.Router {
 	subscriptions := manager.PathPrefix("/subscription").Subrouter() //specific subrouter
 	subscriptions.HandleFunc("", getSubscriptions).Methods("GET")
 	subscriptions.HandleFunc("/edit", keySetSubscription).Methods("POST") //for editing subscription
+
+	router.MethodNotAllowedHandler = http.HandlerFunc(setCorsHeader) //if method is not found allow OPTIONS
 	return router
 }
