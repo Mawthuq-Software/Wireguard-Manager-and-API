@@ -115,7 +115,7 @@ With almost any API error the server will give back a ``400 Bad Request`` status
 
 ### Adding keys
 
-URL: `POST` request to `http(s)://domain.com:PORT/manager/keys`  
+URL: `POST` request to `http(s)://domain.com:PORT/manager/key`  
 Header: `Content-Type: application/json`  
 Header (If authentication is enabled): `authorization:(AUTH key from config.json)`  
 Body: 
@@ -158,7 +158,7 @@ Endpoint = (public IP of server):51820
 ```
 
 ### Removing keys
-URL: `DELETE` request to `http(s)://domain.com:PORT/manager/keys`  
+URL: `DELETE` request to `http(s)://domain.com:PORT/manager/key`  
 Header: `Content-Type: application/json`  
 Header (If authentication is enabled): `authorization:(AUTH key from config.json)`  
 Body:
@@ -176,7 +176,7 @@ Status Code `202`
 ```
 
 ### Enabling keys
-URL: `POST` request to `http(s)://domain.com:PORT/manager/keys/enable`  
+URL: `POST` request to `http(s)://domain.com:PORT/manager/key/enable`  
 Header: `Content-Type: application/json`  
 Header (If authentication is enabled): `authorization:(AUTH key from config.json)`  
 Body:
@@ -194,7 +194,7 @@ Status Code `202`
 ```
 
 ### Disabling keys
-URL: `POST` request to `http(s)://domain.com:PORT/manager/keys/disable`  
+URL: `POST` request to `http(s)://domain.com:PORT/manager/key/disable`  
 Header: `Content-Type: application/json`  
 Header (If authentication is enabled): `authorization:(AUTH key from config.json)`  
 Body:  
@@ -243,7 +243,7 @@ Status Code `202`
 
 ### Editing subscriptions 
 This allows editing of subscriptions such as bandwidth, resetting bandwidth usage and changing the subscription expiry date.  
-URL: `POST` request to `http(s)://domain.com:PORT/manager/subscriptions/edit`  
+URL: `POST` request to `http(s)://domain.com:PORT/manager/subscription/edit`  
 Header: `Content-Type: application/json`  
 Header (If authentication is enabled): `authorization:(AUTH key from config.json)`  
 Body:  
