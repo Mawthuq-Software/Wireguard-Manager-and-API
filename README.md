@@ -19,12 +19,14 @@ The SQLite database contains tables which store information such as generated an
       - [Code](#code)
       - [Dockerfile](#dockerfile)
   - [Communicating with the API](#communicating-with-the-api)
-    - [Adding keys](#adding-keys)
-    - [Removing keys](#removing-keys)
-    - [Enabling keys](#enabling-keys)
-    - [Disabling keys](#disabling-keys)
+    - [Adding key](#adding-key)
+    - [Removing key](#removing-key)
+    - [Enabling key](#enabling-key)
+    - [Disabling key](#disabling-key)
     - [Getting all keys](#getting-all-keys)
-    - [Editing subscriptions](#editing-subscriptions)
+    - [Editing subscription](#editing-subscription)
+    - [Getting subscription](#getting-subscription)
+    - [Getting all subscriptions](#getting-all-subscriptions)
   - [Debugging](#debugging)
     - [Logs](#logs)
     - [FAQ](#faq)
@@ -113,7 +115,7 @@ Do not forget to add your ``config.json`` file to ``/opt/wgManagerAPI/config.jso
 
 With almost any API error the server will give back a ``400 Bad Request`` status code. Please read the JSON response file "response" to get the error information.
 
-### Adding keys
+### Adding key
 
 URL: `POST` request to `http(s)://domain.com:PORT/manager/key`  
 Header: `Content-Type: application/json`  
@@ -157,7 +159,7 @@ AllowedIPs = 0.0.0.0/0, ::/0
 Endpoint = (public IP of server):51820
 ```
 
-### Removing keys
+### Removing key
 URL: `DELETE` request to `http(s)://domain.com:PORT/manager/key`  
 Header: `Content-Type: application/json`  
 Header (If authentication is enabled): `authorization:(AUTH key from config.json)`  
@@ -175,7 +177,7 @@ Status Code `202`
 }
 ```
 
-### Enabling keys
+### Enabling key
 URL: `POST` request to `http(s)://domain.com:PORT/manager/key/enable`  
 Header: `Content-Type: application/json`  
 Header (If authentication is enabled): `authorization:(AUTH key from config.json)`  
@@ -193,7 +195,7 @@ Status Code `202`
 }
 ```
 
-### Disabling keys
+### Disabling key
 URL: `POST` request to `http(s)://domain.com:PORT/manager/key/disable`  
 Header: `Content-Type: application/json`  
 Header (If authentication is enabled): `authorization:(AUTH key from config.json)`  
@@ -241,7 +243,7 @@ Status Code `202`
 }
 ```
 
-### Editing subscriptions 
+### Editing subscription
 This allows editing of subscriptions such as bandwidth, resetting bandwidth usage and changing the subscription expiry date.  
 URL: `POST` request to `http(s)://domain.com:PORT/manager/subscription/edit`  
 Header: `Content-Type: application/json`  
@@ -260,6 +262,51 @@ Status Code `202`
 ```json
 {
   "response": "Updated successfully"
+}
+```
+
+### Getting subscription
+This allows getting of a susbcription such as bandwidth, bandwidth usage and  the subscription expiry date.  
+URL: `GET` request to `http(s)://domain.com:PORT/manager/subscription`  
+Header: `Content-Type: application/json`  
+Header (If authentication is enabled): `authorization:(AUTH key from config.json)`  
+Body:  
+```json
+{
+	"keyID": "(database keyID)",
+}
+```
+Response:  
+Status Code `202`
+```json
+{
+	"bandwidthLimit": "0",
+	"bandwidthUsed": "0",
+	"response": "Queried successfully",
+	"subscriptionEnd": "2099-Oct-10 12:39:05 PM"
+}
+```
+### Getting all subscriptions 
+This allows getting of all subscriptions such as bandwidth, bandwidth usage and the subscription expiry date.  
+URL: `GET` request to `http(s)://domain.com:PORT/manager/subscription/all`  
+Header: `Content-Type: application/json`  
+Header (If authentication is enabled): `authorization:(AUTH key from config.json)`  
+Body: None
+Response:  
+Status Code `202`
+```json
+{
+  "response": "All subscriptions successfully parsed",
+  "subscriptions": [
+		{
+			"KeyID": 4,
+			"PublicKey": "0ba1shYHi2swnUvaqqXuVDSM//S9OW2KxdvoaF69NHg=",
+			"BandwidthUsed": 0,
+			"BandwidthAllotted": 1000,
+			"SubscriptionEnd": "2022-Oct-28 12:39:05 PM"
+		},
+        ...
+  ]
 }
 ```
 
