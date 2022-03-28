@@ -23,7 +23,7 @@ func NewRouter() *mux.Router {
 	subscriptions := manager.PathPrefix("/subscription").Subrouter() //specific subrouter
 	subscriptions.HandleFunc("/all", getSubscriptions).Methods("GET")
 	subscriptions.HandleFunc("/edit", keySetSubscription).Methods("POST") //for editing subscription
-	subscriptions.HandleFunc("", getKeySub).Methods("GET")
+	subscriptions.HandleFunc("", getKeySub).Methods("POST")
 
 	router.MethodNotAllowedHandler = http.HandlerFunc(setCorsHeader) //if method is not found allow OPTIONS
 	return router

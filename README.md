@@ -267,7 +267,7 @@ Status Code `202`
 
 ### Getting subscription
 This allows getting of a susbcription such as bandwidth, bandwidth usage and  the subscription expiry date.  
-URL: `GET` request to `http(s)://domain.com:PORT/manager/subscription`  
+URL: `POST` request to `http(s)://domain.com:PORT/manager/subscription`  
 Header: `Content-Type: application/json`  
 Header (If authentication is enabled): `authorization:(AUTH key from config.json)`  
 Body:  
