@@ -34,14 +34,14 @@ A config.json file needs to be placed in the directory `/opt/wgManagerAPI/config
 | ------------ | ------------ | ------------ |
 | INSTANCE.IP.GLOBAL.ADDRESS.IPV4  | The public IPv4 **addresses** of your server.  Must be set.| string array |
 | INSTANCE.IP.GLOBAL.ADDRESS.IPV6  | The public IPv6 **addresses** of your server.  Must be set.| string array |
-|  INSTANCE.IP.GLOBAL.DNS | The DNS address that you want wireguard clients to connect to. Can also be a local address if you are running a Pihole instance or local DNS.  | string |
+| INSTANCE.IP.GLOBAL.DNS | The DNS address that you want wireguard clients to connect to. Can also be a local address if you are running a Pihole instance or local DNS.  | string |
 |  INSTANCE.IP.GLOBAL.ALLOWED |  By default it allows all IPv4 and IPv6 addresses through. Change to allow split tunneling. Default of ``0.0.0.0/0, ::0``| string |
-|  INSTANCE.IP.LOCAL.IPV4.ADDRESS |  The local IPv4 address which will be assigned to the Wireguard instance. **IMPORTANT:** the application creates a subnet of /16, please make sure you have space for this. By default it is set to ``10.6.0.1`` (p.s. this was tested with a Pihole instance running locally on the same address).  |  string |
-|  INSTANCE.IP.LOCAL.IPV4.SUBNET |  Subnet of the local IPv4 address.  |  string |
-|  INSTANCE.IP.LOCAL.IPV6.ADDRESS |  The local IPv6 address which will be assigned to the Wireguard instance. **IMPORTANT:** At the current stage the docker container is not able to access IPv6, only IPv4. If you would like to disable/not use IPv6, set this to ``-``  | string |
-|  INSTANCE.IP.LOCAL.IPV6.SUBNET |  Subnet of the local IPv6 address.  | string |
-|  INSTANCE.IP.LOCAL.IPV6.ENABLED |  Enabling of IPv6 (does not work with docker) |  boolean |
-|  INSTANCE.PORT |  Wireguard server port. Default value of 51820.  | integer |
+|  INSTANCE.IP.LOCAL.IPV4.ADDRESS |  The local IPv4 address which will be assigned to the Wireguard instance. **IMPORTANT:** By default it is set to ``10.6.0.1`` (p.s. this was tested with a Pihole instance running locally on the same address).  |  string |
+|  INSTANCE.IP.LOCAL.IPV4.SUBNET |  Subnet of the local IPv4 address. If you do not assign a proper subnet, MAX_IP may over run and problems occured. To be safe, set to "/16" |  string |
+|  INSTANCE.IP.LOCAL.IPV6.ADDRESS |  The local IPv6 address which will be assigned to the Wireguard instance. **IMPORTANT:** At the current stage the docker container is not able to access IPv6, only IPv4. Must be set.  | string |
+|  INSTANCE.IP.LOCAL.IPV6.SUBNET |  Subnet of the local IPv6 address. To be safe and not overrun MAX_IP, set to "/64" | string |
+|  INSTANCE.IP.LOCAL.IPV6.ENABLED |  Enabling of IPv6 (does not work with docker, but must be set.) |  boolean |
+|  INSTANCE.PORT |  Wireguard server port. Default value of 51820. This value must also be updated in the docker-compose file if docker is being used. | integer |
 
 ### API server settings
 | Variable | Purpose | Type |
@@ -121,7 +121,7 @@ If the Wireguard Manager and API application fails to start you should always lo
 **Q:** The prebuilt source file or docker image is not working properly.  
 **A:** Build from dockerfile or code from source. The prebuilt docker images are not for ARM architecture.
 
-**Q:** IPv6 is not working with the docker image.  
+**Q:** Global IPv6 is not working with the docker image.  
 **A:** We have not been able to setup IPv6 on the docker-compose file successfully. If you find a solution please tell us.
 
 **Q:** I have built from source code but unable to successfully route clients through the VPN  
