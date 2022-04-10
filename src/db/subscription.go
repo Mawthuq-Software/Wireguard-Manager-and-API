@@ -19,7 +19,7 @@ func GetUserSubscription(keyID string) (bool, map[string]string) {
 
 	responseMap["response"] = "Queried successfully"
 	responseMap["bandwidthUsed"] = strconv.Itoa(int(subStructModify.BandwidthUsed))
-	responseMap["bandwidthLimit"] = strconv.Itoa(int(subStructModify.BandwidthUsed))
+	responseMap["bandwidthLimit"] = strconv.Itoa(int(subStructModify.BandwidthAllotted))
 	responseMap["subscriptionEnd"] = subStructModify.SubscriptionEnd
 	return true, responseMap
 }
