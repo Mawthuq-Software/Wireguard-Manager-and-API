@@ -7,8 +7,8 @@ import (
 )
 
 type ReturnSubsRes struct {
-	Response      string
-	Subscriptions []Subscription
+	Response      string         `json:"response"`
+	Subscriptions []Subscription `json:"subscriptions"`
 }
 
 func ReturnSubscriptions() (bool, ReturnSubsRes) {

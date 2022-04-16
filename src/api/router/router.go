@@ -21,8 +21,9 @@ func NewRouter() *mux.Router {
 	keys.HandleFunc("/disable", keyDisable).Methods("POST") //post route for disabling key
 
 	subscriptions := manager.PathPrefix("/subscription").Subrouter() //specific subrouter
-	subscriptions.HandleFunc("", getSubscriptions).Methods("GET")
+	subscriptions.HandleFunc("/all", getSubscriptions).Methods("GET")
 	subscriptions.HandleFunc("/edit", keySetSubscription).Methods("POST") //for editing subscription
+	subscriptions.HandleFunc("", getKeySub).Methods("POST")
 
 	router.MethodNotAllowedHandler = http.HandlerFunc(setCorsHeader) //if method is not found allow OPTIONS
 	return router
