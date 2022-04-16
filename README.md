@@ -23,12 +23,6 @@ The SQLite database contains tables which store information such as generated an
       - [Code](#code)
       - [Dockerfile](#dockerfile)
   - [Communicating with the API](#communicating-with-the-api)
-    - [Adding keys](#adding-keys)
-    - [Removing keys](#removing-keys)
-    - [Enabling keys](#enabling-keys)
-    - [Disabling keys](#disabling-keys)
-    - [Getting all keys](#getting-all-keys)
-    - [Editing subscriptions](#editing-subscriptions)
   - [Debugging](#debugging)
     - [Logs](#logs)
     - [FAQ](#faq)
@@ -40,14 +34,14 @@ A config.json file needs to be placed in the directory `/opt/wgManagerAPI/config
 | ------------ | ------------ | ------------ |
 | INSTANCE.IP.GLOBAL.ADDRESS.IPV4  | The public IPv4 **addresses** of your server.  Must be set.| string array |
 | INSTANCE.IP.GLOBAL.ADDRESS.IPV6  | The public IPv6 **addresses** of your server.  Must be set.| string array |
-|  INSTANCE.IP.GLOBAL.DNS | The DNS address that you want wireguard clients to connect to. Can also be a local address if you are running a Pihole instance or local DNS.  | string |
+| INSTANCE.IP.GLOBAL.DNS | The DNS address that you want wireguard clients to connect to. Can also be a local address if you are running a Pihole instance or local DNS.  | string |
 |  INSTANCE.IP.GLOBAL.ALLOWED |  By default it allows all IPv4 and IPv6 addresses through. Change to allow split tunneling. Default of ``0.0.0.0/0, ::0``| string |
-|  INSTANCE.IP.LOCAL.IPV4.ADDRESS |  The local IPv4 address which will be assigned to the Wireguard instance. **IMPORTANT:** the application creates a subnet of /16, please make sure you have space for this. By default it is set to ``10.6.0.1`` (p.s. this was tested with a Pihole instance running locally on the same address).  |  string |
-|  INSTANCE.IP.LOCAL.IPV4.SUBNET |  Subnet of the local IPv4 address.  |  string |
-|  INSTANCE.IP.LOCAL.IPV6.ADDRESS |  The local IPv6 address which will be assigned to the Wireguard instance. **IMPORTANT:** At the current stage the docker container is not able to access IPv6, only IPv4. If you would like to disable/not use IPv6, set this to ``-``  | string |
-|  INSTANCE.IP.LOCAL.IPV6.SUBNET |  Subnet of the local IPv6 address.  | string |
-|  INSTANCE.IP.LOCAL.IPV6.ENABLED |  Enabling of IPv6 (does not work with docker) |  boolean |
-|  INSTANCE.PORT |  Wireguard server port. Default value of 51820. **IMPORTANT:** this is set only once! To change the wireguard port you must manually edit the database. | integer |
+|  INSTANCE.IP.LOCAL.IPV4.ADDRESS |  The local IPv4 address which will be assigned to the Wireguard instance. **IMPORTANT:** By default it is set to ``10.6.0.1`` (p.s. this was tested with a Pihole instance running locally on the same address).  |  string |
+|  INSTANCE.IP.LOCAL.IPV4.SUBNET |  Subnet of the local IPv4 address. If you do not assign a proper subnet, MAX_IP may over run and problems occured. To be safe, set to "/16" |  string |
+|  INSTANCE.IP.LOCAL.IPV6.ADDRESS |  The local IPv6 address which will be assigned to the Wireguard instance. **IMPORTANT:** At the current stage the docker container is not able to access IPv6, only IPv4. Must be set.  | string |
+|  INSTANCE.IP.LOCAL.IPV6.SUBNET |  Subnet of the local IPv6 address. To be safe and not overrun MAX_IP, set to "/64" | string |
+|  INSTANCE.IP.LOCAL.IPV6.ENABLED |  Enabling of IPv6 (does not work with docker, but must be set.) |  boolean |
+|  INSTANCE.PORT |  Wireguard server port. Default value of 51820. This value must also be updated in the docker-compose file if docker is being used. | integer |
 
 ### API server settings
 | Variable | Purpose | Type |
@@ -117,156 +111,8 @@ Do not forget to add your ``config.json`` file to ``/opt/wgManagerAPI/config.jso
 
 With almost any API error the server will give back a ``400 Bad Request`` status code. Please read the JSON response file "response" to get the error information.
 
-### Adding keys
 
-URL: `POST` request to `http(s)://domain.com:PORT/manager/keys`  
-Header: `Content-Type: application/json`  
-Header (If authentication is enabled): `authorization:(AUTH key from config.json)`  
-Body: 
-```json
-{
-  "publicKey": "(Wireguard client public key)",
-  "presharedKey": "(Wireguard client preshared key)",
-  "bwLimit": (integer, megabytes, 0 for infinite),
-  "subExpiry": "(date in this FORMAT!! uses UTC for timing) 2021-Oct-28 12:39:05 PM",
-  "ipIndex": "(the integer index of the ip address you want to use. Index is the IP in the config.json on the API server.)
-}
-```
-Response:  
-Status Code `202`
-```json
-{
-  "allowedIPs": "(Allowed IPs set in config.json. Default of 0.0.0.0/0, ::0)",
-  "dns": "(DNS set in config)",
-  "ipAddress": "(public IP of server)",
-  "ipv4Address": "(internal IPv4 Address assigned to client) 10.6.0.10/32", 
-  "ipv6Address": "(internal IPv6 Address assigned to client) fe22:22:22::10/128",
-  "keyID": "(KeyID in database) 1",
-  "listenPort": "(wireguard default listenport) 51820",
-  "publicKey": "(Public key of wireguard server) ghyewr34A0wzT1b7ZdJgPjWwS3F/9PgRzlNWcX/QlA0=",
-  "response": "Added key successfully"
-}
-```
-Parsing response into Wireguard client config:
-```
-[Interface]
-PrivateKey = (Wireguard client private key)
-Address = (internal IPv4 Address assigned to client), (internal IPv6 Address assigned to client)
-DNS = 10.6.0.1
-
-[Peer]
-PublicKey = (Public key of wireguard server)
-PresharedKey = (Wireguard client preshared key)
-AllowedIPs = 0.0.0.0/0, ::/0
-Endpoint = (public IP of server):51820
-```
-
-### Removing keys
-URL: `DELETE` request to `http(s)://domain.com:PORT/manager/keys`  
-Header: `Content-Type: application/json`  
-Header (If authentication is enabled): `authorization:(AUTH key from config.json)`  
-Body:
-```json
-{
-  "keyID": "(Database keyID)"
-}
-```
-Response:  
-Status Code `202`
-```json
-{
-  "response": "Key deleted"
-}
-```
-
-### Enabling keys
-URL: `POST` request to `http(s)://domain.com:PORT/manager/keys/enable`  
-Header: `Content-Type: application/json`  
-Header (If authentication is enabled): `authorization:(AUTH key from config.json)`  
-Body:
-```json
-{
-  "keyID": "(Database keyID)"
-}
-```
-Response:  
-Status Code `202`
-```json
-{
-  "response": "Enabled key successfully"
-}
-```
-
-### Disabling keys
-URL: `POST` request to `http(s)://domain.com:PORT/manager/keys/disable`  
-Header: `Content-Type: application/json`  
-Header (If authentication is enabled): `authorization:(AUTH key from config.json)`  
-Body:  
-```json
-{
-  "keyID": "(Database keyID)"
-}
-```
-Response:  
-Status Code `202`
-```json
-{
-  "response": "Disabled key successfully"
-}
-```
-### Getting all keys
-This requests all keys from the database. It is basically getting all information from the Keys table.
-
-URL: `GET` request to `http(s)://domain.com:PORT/manager/key`  
-Header (If authentication is enabled): `authorization:(AUTH key from config.json)`
-
-Response:  
-Status Code `202`
-```json
-{
-  "response": "All key successfully parsed",
-  "Keys": [
-    {
-      "KeyID": 1,
-      "PublicKey": "Si0sJ6YoYOvyc96Ln6ZkBYRXOz08BNJfM3iFjoAiyU=",
-      "PresharedKey": "AEDWepAAXPzWzatzShkKKJ4UaWscDMetlDq4d0OXfp8=",
-      "IPv4Address": "10.6.0.10",
-      "Enabled": "true"
-    },
-    {
-      "KeyID": 2,
-      "PublicKey": "0ba1shYHi9swnUvawqXuVDSM//S9OW2KxdvoaF69NHg=",
-      "PresharedKey": "dKVFJlFK387Ht174ol0eeW/gjVfZZGLIfSN4egInLgY=",
-      "IPv4Address": "10.6.0.100",
-      "Enabled": "true"
-    },
-    ...
-  ]
-}
-```
-
-### Editing subscriptions 
-This allows editing of subscriptions such as bandwidth, resetting bandwidth usage and changing the subscription expiry date.  
-URL: `POST` request to `http(s)://domain.com:PORT/manager/subscriptions/edit`  
-Header: `Content-Type: application/json`  
-Header (If authentication is enabled): `authorization:(AUTH key from config.json)`  
-Body:  
-```json
-{
-	"keyID": "(database keyID)",
-	"bwLimit": (integer, bandwidth limit. Set to -1 to keep current limit.),
-	"subExpiry": "(date, must be this format!!) 2032-Oct-21 12:49:05 PM",
-	"bwReset": true (a boolean, set to true to reset current bandwidth usage.)
-}
-```
-Response:  
-Status Code `202`
-```json
-{
-  "response": "Updated successfully"
-}
-```
-
+Check out our [Postman documentation](https://documenter.getpostman.com/view/20105196/UVsPQQYz) for API requests.
 ## Debugging
 ### Logs
 If the Wireguard Manager and API application fails to start you should always look at your logs and the errors to see the problems look at ``/opt/wgManagerAPI/logs/`` folder and open the latest log using ``nano`` or any other text editor.
@@ -275,7 +121,7 @@ If the Wireguard Manager and API application fails to start you should always lo
 **Q:** The prebuilt source file or docker image is not working properly.  
 **A:** Build from dockerfile or code from source. The prebuilt docker images are not for ARM architecture.
 
-**Q:** IPv6 is not working with the docker image.  
+**Q:** Global IPv6 is not working with the docker image.  
 **A:** We have not been able to setup IPv6 on the docker-compose file successfully. If you find a solution please tell us.
 
 **Q:** I have built from source code but unable to successfully route clients through the VPN  
