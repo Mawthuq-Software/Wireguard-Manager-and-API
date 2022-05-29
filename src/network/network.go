@@ -27,7 +27,7 @@ func addIP(instance netlink.Link, ipAddr *netlink.Addr) {
 
 	ipAddErr := netlink.AddrAdd(instance, ipAddr)
 	if ipAddErr != nil {
-		combinedLogger.Info(fmt.Sprintf("Failed to add IP address %s", ipAddErr))
+		combinedLogger.Warn(fmt.Sprintf("Failed to add IP address %s", ipAddErr))
 	} else {
 		combinedLogger.Info("Added IP address to interface")
 	}
