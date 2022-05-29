@@ -1,10 +1,11 @@
 package manager
 
 import (
-	"log"
 	"net"
 
 	"github.com/vishvananda/netlink"
+	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/logger"
+	"go.uber.org/zap"
 	"golang.zx2c4.com/wireguard/wgctrl"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
@@ -18,12 +19,14 @@ type wgInterface struct {
 	TypeName   string
 }
 
+var combinedLogger *zap.Logger = logger.GetCombinedLogger()
+
 func createInstance() (*wgctrl.Client, error) {
-	log.Println("Info - Creating wg device client")
+	combinedLogger.Info("Creating wg device client")
 	return wgctrl.New()
 }
 func closeInstance(client *wgctrl.Client) error {
-	log.Println("Info - Closing wg device client")
+	combinedLogger.Info("Closing wg device client")
 	return client.Close()
 }
 

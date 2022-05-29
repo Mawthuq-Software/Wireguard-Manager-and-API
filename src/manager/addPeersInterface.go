@@ -1,20 +1,23 @@
 package manager
 
 import (
-	"log"
+	"fmt"
 
 	"github.com/vishvananda/netlink"
+	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/logger"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
 
 func AddPeersInterface(interfaceName string, pk string, listenPort int, peers []wgtypes.PeerConfig) { //adds client peers to wg interface
+	combinedLogger := logger.GetCombinedLogger()
+
 	client, errClient := createInstance()
 	if errClient != nil {
-		log.Fatal("Error - Creating new client", errClient)
+		combinedLogger.Error(fmt.Sprintf("Creating new client %s", errClient))
 	}
 	devices, errDev := client.Devices() //get all wireguard devices
 	if errDev != nil {
-		log.Fatal("Error - Retrieving devices", errDev)
+		combinedLogger.Error(fmt.Sprintf("Retrieving devices %s", errDev))
 	}
 	wg0Found := false
 	for i := 0; i < len(devices); i++ { //find if wg0 interface exists
@@ -24,15 +27,15 @@ func AddPeersInterface(interfaceName string, pk string, listenPort int, peers []
 	}
 
 	if !wg0Found {
-		log.Println("Info - Adding new wg interface, none was found")
+		combinedLogger.Info("Adding new wg interface, none was found")
 		pkEncoded, pkErr := wgtypes.ParseKey(pk)
 		if pkErr != nil {
-			log.Fatal("Error - Parsing private key", pkErr)
+			combinedLogger.Error(fmt.Sprintf("Parsing private key %s", pkErr))
 		}
 
 		handle, errHandle := netlink.NewHandle() //create new handle to add link
 		if errHandle != nil {
-			log.Fatal("Error - Creating new handle", errHandle)
+			combinedLogger.Error(fmt.Sprintf("Creating new handle %s", errHandle))
 		}
 
 		linkA := netlink.NewLinkAttrs() //create new interface attributes
@@ -45,7 +48,7 @@ func AddPeersInterface(interfaceName string, pk string, listenPort int, peers []
 		realLink := returnNewLink(linkWG)      //get new link
 		errAddLink := handle.LinkAdd(realLink) //add new link
 		if errAddLink != nil {
-			log.Fatal("Error - Creating new link", errAddLink)
+			combinedLogger.Error(fmt.Sprintf("Creating new link %s", errAddLink))
 		}
 
 		wgConfig := wgtypes.Config{ //setup wireguard interface
@@ -56,10 +59,11 @@ func AddPeersInterface(interfaceName string, pk string, listenPort int, peers []
 		}
 		errConfDev := client.ConfigureDevice(interfaceName, wgConfig)
 		if errConfDev != nil {
-			log.Fatal("Error - Configuring device", errConfDev)
+			combinedLogger.Error(fmt.Sprintf("Configuring device %s", errConfDev))
 		}
 	} else {
-		log.Println("Info - Interface exists, adding peers")
+		combinedLogger.Info("Interface exists, adding peers")
+
 		wgConfig := wgtypes.Config{
 			ListenPort:   &listenPort,
 			ReplacePeers: true,
@@ -68,7 +72,7 @@ func AddPeersInterface(interfaceName string, pk string, listenPort int, peers []
 
 		errConfDev := client.ConfigureDevice(interfaceName, wgConfig)
 		if errConfDev != nil {
-			log.Fatal("Error - Configuring device", errConfDev)
+			combinedLogger.Error(fmt.Sprintf("Configuring device %s", errConfDev))
 		}
 	}
 	//code for listing all clients on interfaces
@@ -84,15 +88,15 @@ func AddPeersInterface(interfaceName string, pk string, listenPort int, peers []
 	}*/
 	handles, errHandle := netlink.NewHandle() //create new handle to add link
 	if errHandle != nil {
-		log.Fatal("Error - Creating new handle", errHandle)
+		combinedLogger.Error(fmt.Sprintf("PCreating new handle %s", errHandle))
 	}
 	realLinkTwo, errUp := handles.LinkByName("wg0")
 	if errUp != nil {
-		log.Fatal("Error - Link Up", errUp)
+		combinedLogger.Error(fmt.Sprintf("Link Up %s", errUp))
 	}
 	errLinkUp := handles.LinkSetUp(realLinkTwo)
 	if errLinkUp != nil {
-		log.Fatal("Error - Link Up", errLinkUp)
+		combinedLogger.Error(fmt.Sprintf("Link Up %s", errLinkUp))
 	}
 	closeInstance(client)
 }

@@ -2,7 +2,6 @@ package api
 
 import (
 	"fmt"
-	"log"
 	"net"
 	"net/http"
 
@@ -16,34 +15,32 @@ type authStruct struct {
 }
 
 func API() {
-	consoleLogger := logger.GetConsoleLogger()
-	consoleLogger.Info("Starting web server")
+	combinedLogger := logger.GetCombinedLogger()
+	combinedLogger.Info("Starting web server")
 
 	newRouter := router.NewRouter()
 
 	serverDev := viper.GetBool("SERVER.SECURITY")
 	if !serverDev {
 		port := viper.GetString("SERVER.PORT")
-		fmt.Printf("Info - HTTP about to listen on %s.", port)
-		log.Printf("Info - HTTP about to listen on %s.", port)
+		combinedLogger.Info(fmt.Sprintf("HTTP about to listen on %s.", port))
 
 		resolve, _ := net.ResolveTCPAddr("tcp4", "0.0.0.0:"+port)
 		resolveTCP, _ := net.ListenTCP("tcp4", resolve)
 
 		errServer := http.Serve(resolveTCP, newRouter)
-		log.Fatal("Error - Startup of API server", errServer)
+		combinedLogger.Error(fmt.Sprintf("Failed to startup of API server %s", errServer))
 	} else {
 		port := viper.GetString("SERVER.PORT")
 		fullchainCert := viper.GetString("SERVER.CERT.FULLCHAIN")
 		privKeyCert := viper.GetString("SERVER.CERT.PK")
 
-		log.Printf("HTTPS about to listen on %s.", port)
-		fmt.Printf("HTTPS about to listen on %s.", port)
+		combinedLogger.Info(fmt.Sprintf("HTTPS about to listen on %s.", port))
 
 		resolve, _ := net.ResolveTCPAddr("tcp4", "0.0.0.0:"+port)
 		resolveTCP, _ := net.ListenTCP("tcp4", resolve)
 
 		errServer := http.ServeTLS(resolveTCP, newRouter, fullchainCert, privKeyCert)
-		log.Fatal("Error - Startup of API server", errServer)
+		combinedLogger.Error(fmt.Sprintf("Failed to startup of API server %s", errServer))
 	}
 }

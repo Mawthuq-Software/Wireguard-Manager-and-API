@@ -1,7 +1,7 @@
 package manager
 
 import (
-	"log"
+	"fmt"
 
 	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/logger"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
@@ -9,10 +9,11 @@ import (
 
 func DeleteKey(interfaceName string, publicStr string) (bool, string) {
 	var arrayConfig []wgtypes.PeerConfig //array of config to be removed
+	combinedLogger := logger.GetCombinedLogger()
 
 	client, errInstance := createInstance() //create new communication wg device
 	if errInstance != nil {
-		log.Println("Create instance", errInstance)
+		combinedLogger.Error(fmt.Sprintf("Create instance %s", errInstance))
 		return false, "An error has occurred when creating a WG instance"
 	}
 

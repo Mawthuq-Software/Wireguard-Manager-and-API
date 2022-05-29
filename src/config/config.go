@@ -6,9 +6,8 @@ import (
 )
 
 func LoadConfig() {
-	consoleLogger := logger.GetConsoleLogger()
-
-	consoleLogger.Info("Loading configuration file")
+	combinedLogger := logger.GetCombinedLogger()
+	combinedLogger.Info("Loading configuration file")
 
 	viper.SetConfigName("config")             // name of config file (without extension)
 	viper.SetConfigType("json")               // REQUIRED if the config file does not have the extension in the name

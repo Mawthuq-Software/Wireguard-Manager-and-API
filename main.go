@@ -10,9 +10,8 @@ import (
 )
 
 func main() {
-	consoleLogger := logger.GetConsoleLogger()
-
-	consoleLogger.Info("Firing up Wireguard Manager & API")
+	combinedLogger := logger.GetCombinedLogger()
+	combinedLogger.Info("Firing up Wireguard Manager & API")
 
 	config.LoadConfig()
 	db.DBStart()

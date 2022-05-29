@@ -1,7 +1,6 @@
 package autocheck
 
 import (
-	"log"
 	"time"
 
 	"github.com/go-co-op/gocron"
@@ -11,38 +10,42 @@ import (
 )
 
 func AutoStart() {
-	consoleLogger := logger.GetConsoleLogger()
+	combinedLogger := logger.GetCombinedLogger()
 	autocheckBool := viper.GetBool("SERVER.AUTOCHECK")
 
 	if autocheckBool {
-		consoleLogger.Info("Setting up wireguard network interface")
+		combinedLogger.Info("Setting up wireguard network interface")
+		combinedLogger.Info("AutoStart running")
 
-		log.Println("Info - AutoStart running")
 		s := gocron.NewScheduler(time.UTC)
 		s.Every(5).Minute().Do(checkPeer)
 		s.Every(1).Minute().Do(checkBW)
 		s.StartAsync()
 
 	} else {
-		consoleLogger.Info("Skipping autochecker as SERVER.AUTOCHECK is set to false")
+		combinedLogger.Info("Skipping autochecker as SERVER.AUTOCHECK is set to false")
 	}
 }
 
 var checkPeer = func() {
-	log.Println("Info - Running check wg check peers")
+	combinedLogger := logger.GetCombinedLogger()
+	combinedLogger.Info("Running check wg check peers")
+
 	for i := 0; i < 2; i++ {
 		boolWG := db.AddRemovePeers()
 		if !boolWG {
-			log.Println("Error - When AddRemovePeer was run")
+			combinedLogger.Error("When AddRemovePeer was run")
 
 		} else {
-			log.Println("Info - Successfully ran AddRemovePeer")
+			combinedLogger.Info("Successfully ran AddRemovePeer")
 			break
 		}
 	}
 }
 
 var checkBW = func() {
-	log.Println("Info - Running check bandwidth")
+	combinedLogger := logger.GetCombinedLogger()
+	combinedLogger.Info("Running check bandwidth")
+
 	db.BWPeerCheck()
 }

@@ -2,7 +2,7 @@ package db
 
 import (
 	"errors"
-	"log"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -37,6 +37,7 @@ func BWPeerCheck() bool {
 		return false
 	}
 
+	combinedLogger := logger.GetCombinedLogger()
 	db := DBSystem
 	currentTime := time.Now().UTC()
 	for interfaces := 0; interfaces < len(getInterfaces); interfaces++ { //get interfaces
@@ -50,7 +51,7 @@ func BWPeerCheck() bool {
 
 			resultIP := db.Where("public_key = ?", pubKeyStr).First(&subStruct) //find subscription record
 			if errors.Is(resultIP.Error, gorm.ErrRecordNotFound) {
-				log.Println("Could not find public key in database: ", pubKeyStr)
+				combinedLogger.Error(fmt.Sprintf("Could not find public key in database %s", pubKeyStr))
 				continue
 			}
 
@@ -66,7 +67,7 @@ func BWPeerCheck() bool {
 				keyID := subStruct.KeyID
 				updatePeerBW(currentPeer)       //update bandwidth before disabling
 				DisableKey(strconv.Itoa(keyID)) //disable key if bandwidth limit reached or subscription end#
-				log.Println("Info - Disabling key, bw or sub has ended, KeyID: ", keyID)
+				combinedLogger.Info(fmt.Sprintf("Info - Disabling key, bw or sub has ended, KeyID %d", keyID))
 			}
 		}
 	}
@@ -75,6 +76,7 @@ func BWPeerCheck() bool {
 
 func updatePeerBW(currentPeer wgtypes.Peer) {
 	db := DBSystem
+	combinedLogger := logger.GetCombinedLogger()
 	var subStruct Subscription
 
 	pubKey := currentPeer.PublicKey.String()
@@ -82,7 +84,7 @@ func updatePeerBW(currentPeer wgtypes.Peer) {
 
 	resultSub := db.Where("public_key = ?", pubKey).First(&subStruct) //find IP not in use
 	if errors.Is(resultSub.Error, gorm.ErrRecordNotFound) {
-		log.Println("Error - Subscription not found")
+		combinedLogger.Error("Subscription not found")
 		return //continue even on error
 	}
 	updatedBW := subStruct.BandwidthUsed + (currentBytes / 1000000)

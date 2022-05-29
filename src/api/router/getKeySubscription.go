@@ -1,10 +1,11 @@
 package router
 
 import (
-	"log"
+	"fmt"
 	"net/http"
 
 	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/db"
+	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/logger"
 )
 
 type userSubscription struct {
@@ -13,10 +14,11 @@ type userSubscription struct {
 
 func getKeySub(res http.ResponseWriter, req *http.Request) {
 	var incomingJson userSubscription
+	combinedLogger := logger.GetCombinedLogger()
 
 	err := parseResponse(req, &incomingJson) //parse JSON
 	if err != nil {
-		log.Println("Error - Parsing request", err)
+		combinedLogger.Error(fmt.Sprintf("Parsing request %s", err))
 		sentStandardRes(res, map[string]string{"response": err.Error()}, http.StatusBadRequest)
 		return
 	}

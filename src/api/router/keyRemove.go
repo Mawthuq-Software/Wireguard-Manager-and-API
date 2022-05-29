@@ -1,10 +1,10 @@
 package router
 
 import (
-	"log"
 	"net/http"
 
 	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/db"
+	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/logger"
 )
 
 type keyRemoveJSON struct {
@@ -13,12 +13,13 @@ type keyRemoveJSON struct {
 
 func keyRemove(res http.ResponseWriter, req *http.Request) {
 	var incomingJson keyRemoveJSON
+	combinedLogger := logger.GetCombinedLogger()
 
 	jsonResponse := make(map[string]string)
 
 	err := parseResponse(req, &incomingJson)
 	if err != nil {
-		log.Println(err)
+		combinedLogger.Error(err.Error())
 		sentStandardRes(res, map[string]string{"response": err.Error()}, http.StatusBadRequest)
 		return
 	}

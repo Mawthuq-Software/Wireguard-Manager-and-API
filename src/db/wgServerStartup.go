@@ -2,15 +2,16 @@ package db
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/spf13/viper"
+	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/logger"
 	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/manager"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
 
 func WGStart() {
-	log.Println("Info - Starting up wg interface")
+	combinedLogger := logger.GetCombinedLogger()
+	combinedLogger.Info("Starting your wireguard network interface")
 
 	var wgInterface WireguardInterface
 	db := DBSystem
@@ -19,7 +20,7 @@ func WGStart() {
 	if result.Error != nil { //if an interface is not found, create one
 		pkServer, errPk := wgtypes.GeneratePrivateKey()
 		if errPk != nil {
-			log.Fatal("Error - Generating new private key", errPk)
+			combinedLogger.Fatal(fmt.Sprintf("Generating new private key %s", errPk))
 		}
 
 		pubServer := pkServer.PublicKey()
@@ -40,11 +41,11 @@ func WGStart() {
 
 		peers := generatePeerArray()
 		manager.AddPeersInterface("wg0", pkServer.String(), wgPort, peers)
-		fmt.Println("Created wireguard instance on port", wgPort)
+		combinedLogger.Info(fmt.Sprintf("Created wireguard instance on port %d", wgPort))
 		return
 	} else {
-		log.Println("Wireguard instance in database was found - overriding some values.")
-		fmt.Println("Created wireguard instance on port", wgInterface.ListenPort)
+		combinedLogger.Info("Wireguard instance in database was found - overriding some values.")
+		combinedLogger.Info(fmt.Sprintf("Created wireguard instance on port %d", wgInterface.ListenPort))
 	}
 
 	peers := generatePeerArray()
