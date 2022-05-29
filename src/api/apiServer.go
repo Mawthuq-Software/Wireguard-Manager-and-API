@@ -8,6 +8,7 @@ import (
 
 	"github.com/spf13/viper"
 	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/api/router"
+	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/logger"
 )
 
 type authStruct struct {
@@ -15,6 +16,9 @@ type authStruct struct {
 }
 
 func API() {
+	consoleLogger := logger.GetInstance()
+	consoleLogger.Info("Starting web server")
+
 	newRouter := router.NewRouter()
 
 	serverDev := viper.GetBool("SERVER.SECURITY")

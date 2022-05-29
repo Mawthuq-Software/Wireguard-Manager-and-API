@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/spf13/viper"
+	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/logger"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -15,6 +16,9 @@ import (
 var DBSystem *gorm.DB
 
 func DBStart() {
+	consoleLogger := logger.GetInstance()
+	consoleLogger.Info("Starting the database")
+
 	log.Println("Info - Database connection starting")
 	errCreateDir := os.MkdirAll("/opt/wgManagerAPI/wg", 0755) //create dir if not exist
 	if errCreateDir != nil {

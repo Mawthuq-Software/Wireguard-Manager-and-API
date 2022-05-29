@@ -7,9 +7,13 @@ import (
 	"github.com/spf13/viper"
 	"github.com/vishvananda/netlink"
 	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/db"
+	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/logger"
 )
 
 func SetupWG() {
+	consoleLogger := logger.GetInstance()
+	consoleLogger.Info("Starting autochecker")
+
 	log.Println("Info - Setting up WG interface")
 	db.WGStart()
 	wg0, errLink := netlink.LinkByName("wg0")

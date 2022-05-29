@@ -5,15 +5,27 @@ import (
 	"time"
 
 	"github.com/go-co-op/gocron"
+	"github.com/spf13/viper"
 	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/db"
+	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/logger"
 )
 
 func AutoStart() {
-	log.Println("Info - AutoStart running")
-	s := gocron.NewScheduler(time.UTC)
-	s.Every(5).Minute().Do(checkPeer)
-	s.Every(1).Minute().Do(checkBW)
-	s.StartAsync()
+	consoleLogger := logger.GetInstance()
+	autocheckBool := viper.GetBool("SERVER.AUTOCHECK")
+
+	if autocheckBool {
+		consoleLogger.Info("Setting up wireguard network interface")
+
+		log.Println("Info - AutoStart running")
+		s := gocron.NewScheduler(time.UTC)
+		s.Every(5).Minute().Do(checkPeer)
+		s.Every(1).Minute().Do(checkBW)
+		s.StartAsync()
+
+	} else {
+		consoleLogger.Info("Skipping autochecker as SERVER.AUTOCHECK is set to false")
+	}
 }
 
 var checkPeer = func() {
