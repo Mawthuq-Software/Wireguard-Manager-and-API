@@ -15,7 +15,6 @@ func main() {
 	consoleLogger.Info("Firing up Wireguard Manager & API")
 
 	config.LoadConfig()
-	logger.LoggerSetup()
 	db.DBStart()
 	network.SetupWG()
 	autocheck.AutoStart()
