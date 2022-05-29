@@ -9,7 +9,7 @@ import (
 
 var consoleLogger *zap.Logger
 
-func GetInstance() *zap.Logger {
+func GetConsoleLogger() *zap.Logger {
 	if consoleLogger == nil {
 		config := zap.NewProductionEncoderConfig()
 		config.EncodeLevel = zapcore.CapitalColorLevelEncoder

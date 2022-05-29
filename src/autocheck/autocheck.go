@@ -11,7 +11,7 @@ import (
 )
 
 func AutoStart() {
-	consoleLogger := logger.GetInstance()
+	consoleLogger := logger.GetConsoleLogger()
 	autocheckBool := viper.GetBool("SERVER.AUTOCHECK")
 
 	if autocheckBool {

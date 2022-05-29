@@ -11,7 +11,7 @@ import (
 )
 
 func SetupWG() {
-	consoleLogger := logger.GetInstance()
+	consoleLogger := logger.GetConsoleLogger()
 	consoleLogger.Info("Starting autochecker")
 
 	log.Println("Info - Setting up WG interface")

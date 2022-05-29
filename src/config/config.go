@@ -6,7 +6,7 @@ import (
 )
 
 func LoadConfig() {
-	consoleLogger := logger.GetInstance()
+	consoleLogger := logger.GetConsoleLogger()
 
 	consoleLogger.Info("Loading configuration file")
 

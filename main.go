@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	consoleLogger := logger.GetInstance()
+	consoleLogger := logger.GetConsoleLogger()
 
 	consoleLogger.Info("Firing up Wireguard Manager & API")
 

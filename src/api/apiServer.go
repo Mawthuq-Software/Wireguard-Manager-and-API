@@ -16,7 +16,7 @@ type authStruct struct {
 }
 
 func API() {
-	consoleLogger := logger.GetInstance()
+	consoleLogger := logger.GetConsoleLogger()
 	consoleLogger.Info("Starting web server")
 
 	newRouter := router.NewRouter()

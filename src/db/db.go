@@ -16,7 +16,7 @@ import (
 var DBSystem *gorm.DB
 
 func DBStart() {
-	consoleLogger := logger.GetInstance()
+	consoleLogger := logger.GetConsoleLogger()
 	consoleLogger.Info("Starting the database")
 
 	log.Println("Info - Database connection starting")
