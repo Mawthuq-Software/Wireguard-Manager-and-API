@@ -51,7 +51,7 @@ func BWPeerCheck() bool {
 
 			resultIP := db.Where("public_key = ?", pubKeyStr).First(&subStruct) //find subscription record
 			if errors.Is(resultIP.Error, gorm.ErrRecordNotFound) {
-				combinedLogger.Error(fmt.Sprintf("Could not find public key in database %s", pubKeyStr))
+				combinedLogger.Error("Could not find public key in database " + pubKeyStr)
 				continue
 			}
 
@@ -67,7 +67,7 @@ func BWPeerCheck() bool {
 				keyID := subStruct.KeyID
 				updatePeerBW(currentPeer)       //update bandwidth before disabling
 				DisableKey(strconv.Itoa(keyID)) //disable key if bandwidth limit reached or subscription end#
-				combinedLogger.Info(fmt.Sprintf("Info - Disabling key, bw or sub has ended, KeyID %d", keyID))
+				combinedLogger.Info("Disabling key, bw or sub has ended, KeyID " + fmt.Sprint(keyID))
 			}
 		}
 	}

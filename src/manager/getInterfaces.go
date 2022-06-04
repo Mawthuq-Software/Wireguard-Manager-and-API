@@ -2,7 +2,6 @@ package manager
 
 import (
 	"errors"
-	"fmt"
 
 	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/logger"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
@@ -13,7 +12,7 @@ func GetInterfaces() ([]*wgtypes.Device, error) { //get interfaces
 	combinedLogger := logger.GetCombinedLogger()
 
 	if errInstance != nil {
-		combinedLogger.Error(fmt.Sprintf("Create instance %s", errInstance))
+		combinedLogger.Error("Create instance " + errInstance.Error())
 		return nil, errors.New(errInstance.Error())
 	}
 	getInterfaces, err := client.Devices()

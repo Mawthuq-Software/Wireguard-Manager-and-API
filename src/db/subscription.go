@@ -1,7 +1,6 @@
 package db
 
 import (
-	"fmt"
 	"strconv"
 
 	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/logger"
@@ -16,7 +15,7 @@ func GetUserSubscription(keyID string) (bool, map[string]string) {
 	keyIDInt, _ := strconv.Atoi(keyID) //convert to int
 	resultSub := db.Where("key_id = ?", keyIDInt).First(&subStructModify)
 	if resultSub.Error != nil {
-		combinedLogger.Error(fmt.Sprintf("Error - Finding subscription in db %s", resultSub.Error))
+		combinedLogger.Error("Finding subscription in db " + resultSub.Error.Error())
 		responseMap["response"] = "Error - Finding subscription"
 		return false, responseMap
 	}

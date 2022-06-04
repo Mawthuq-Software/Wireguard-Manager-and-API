@@ -2,7 +2,6 @@ package db
 
 import (
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -48,7 +47,7 @@ func generateIPs() {
 	maxIPInt, err := strconv.Atoi(maxIPStr)      //convert to int
 
 	if err != nil {
-		combinedLogger.Error(fmt.Sprintf("Failed type conversion from IP to int %s", err))
+		combinedLogger.Error("Failed type conversion from IP to int " + err.Error())
 	}
 
 	ipv4Addr := viper.GetString("INSTANCE.IP.LOCAL.IPV4.ADDRESS")  //IPv4 Subnet Address

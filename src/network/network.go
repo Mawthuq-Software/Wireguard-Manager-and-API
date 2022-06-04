@@ -1,8 +1,6 @@
 package network
 
 import (
-	"fmt"
-
 	"github.com/spf13/viper"
 	"github.com/vishvananda/netlink"
 	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/db"
@@ -27,7 +25,7 @@ func addIP(instance netlink.Link, ipAddr *netlink.Addr) {
 
 	ipAddErr := netlink.AddrAdd(instance, ipAddr)
 	if ipAddErr != nil {
-		combinedLogger.Warn(fmt.Sprintf("Failed to add IP address %s", ipAddErr))
+		combinedLogger.Warn("Failed to add IP address " + ipAddErr.Error())
 	} else {
 		combinedLogger.Info("Added IP address to interface")
 	}

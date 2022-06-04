@@ -2,7 +2,6 @@ package db
 
 import (
 	"errors"
-	"fmt"
 	"net"
 	"time"
 
@@ -22,18 +21,18 @@ func generatePeerArray() []wgtypes.PeerConfig {
 	if errors.Is(resultKey.Error, gorm.ErrRecordNotFound) {
 		return keyArray
 	} else if resultKey.Error != nil {
-		combinedLogger.Error(fmt.Sprintf("Finding keys %s", resultKey.Error))
+		combinedLogger.Error("Finding keys " + resultKey.Error.Error())
 	}
 
 	for i := 0; i < len(keyStruct); i++ { //loop over all clients in db
 		var ipStruct IP
 		resultIP := db.Where("ipv4_address = ?", keyStruct[i].IPv4Address).First(&ipStruct)
 		if errors.Is(resultIP.Error, gorm.ErrRecordNotFound) {
-			combinedLogger.Error(fmt.Sprintf("Cant find IPs %s", keyStruct[i].IPv4Address))
+			combinedLogger.Error("Cannot find IPs ")
 
 			continue //continue even on error
 		} else if resultIP.Error != nil {
-			combinedLogger.Error(fmt.Sprintf("Finding IPs %s %s", keyStruct[i].IPv4Address, resultKey.Error))
+			combinedLogger.Error("Cannot find IPs ")
 
 		} else if keyStruct[i].Enabled == "true" { //checks if key is enabled
 			pubKey, pubErr := manager.ParseKey(keyStruct[i].PublicKey)
@@ -45,14 +44,14 @@ func generatePeerArray() []wgtypes.PeerConfig {
 			var ipAddresses []net.IPNet
 			ipv4, errIPv4 := manager.ParseIP(ipStruct.IPv4Address + "/32")
 			if errIPv4 != nil {
-				combinedLogger.Error(fmt.Sprintf("Parsing IPv4 Address %s", errIPv4))
+				combinedLogger.Error("Parsing IPv4 Address " + errIPv4.Error())
 			}
 			ipAddresses = append(ipAddresses, *ipv4)
 
 			if ipStruct.IPv6Address != "-" {
 				ipv6, errIPv6 := manager.ParseIP(ipStruct.IPv6Address + "/128")
 				if errIPv6 != nil {
-					combinedLogger.Error(fmt.Sprintf("Parsing IPv6 Address %s", errIPv6))
+					combinedLogger.Error("Parsing IPv6 Address " + errIPv6.Error())
 				}
 				ipAddresses = append(ipAddresses, *ipv6)
 			}

@@ -1,8 +1,6 @@
 package db
 
 import (
-	"fmt"
-
 	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/logger"
 )
 
@@ -34,7 +32,7 @@ func createWG(PrivateKey string, PublicKey string, ListenPort int, IPv4Address s
 
 	err := db.Create(wgCreate).Error
 	if err != nil {
-		combinedLogger.Error(fmt.Sprintf("Creating interface %s", err))
+		combinedLogger.Error("Creating " + err.Error())
 	}
 	combinedLogger.Info("Successfully created interface")
 }

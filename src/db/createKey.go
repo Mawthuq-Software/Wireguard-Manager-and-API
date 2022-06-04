@@ -2,7 +2,6 @@ package db
 
 import (
 	"errors"
-	"fmt"
 	"strconv"
 	"time"
 
@@ -42,7 +41,7 @@ func CreateKey(pubKey string, preKey string, bwLimit int64, subEnd string, ipInd
 	keyStructCreate := Key{PublicKey: pubKey, PresharedKey: preKey, IPv4Address: ipStruct.IPv4Address, Enabled: "true"} //create Key object
 	resultKeyCreate := db.Create(&keyStructCreate)                                                                      //add object to db
 	if resultKeyCreate.Error != nil {
-		combinedLogger.Error(fmt.Sprintf("Adding key to db %s", resultKeyCreate.Error))
+		combinedLogger.Error("Adding " + resultKeyCreate.Error.Error())
 		responseMap["response"] = "Error when adding key to database"
 		return false, responseMap
 	}
@@ -53,7 +52,7 @@ func CreateKey(pubKey string, preKey string, bwLimit int64, subEnd string, ipInd
 	subStructCreate := Subscription{KeyID: keyStructCreate.KeyID, PublicKey: pubKey, BandwidthUsed: 0, BandwidthAllotted: bwLimit, SubscriptionEnd: subEnd}
 	resultSub := db.Create(&subStructCreate)
 	if resultSub.Error != nil {
-		combinedLogger.Error(fmt.Sprintf("Adding subscription to db %s", resultKeyCreate.Error))
+		combinedLogger.Error("Adding " + resultKeyCreate.Error.Error())
 		responseMap["response"] = "Error when adding subscription to database"
 		return false, responseMap
 	}

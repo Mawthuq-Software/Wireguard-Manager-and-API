@@ -20,7 +20,7 @@ func WGStart() {
 	if result.Error != nil { //if an interface is not found, create one
 		pkServer, errPk := wgtypes.GeneratePrivateKey()
 		if errPk != nil {
-			combinedLogger.Fatal(fmt.Sprintf("Generating new private key %s", errPk))
+			combinedLogger.Fatal("Generating new private key " + errPk.Error())
 		}
 
 		pubServer := pkServer.PublicKey()
@@ -41,11 +41,11 @@ func WGStart() {
 
 		peers := generatePeerArray()
 		manager.AddPeersInterface("wg0", pkServer.String(), wgPort, peers)
-		combinedLogger.Info(fmt.Sprintf("Created wireguard instance on port %d", wgPort))
+		combinedLogger.Info("Created wireguard instance on port " + fmt.Sprint(wgPort))
 		return
 	} else {
 		combinedLogger.Info("Wireguard instance in database was found - overriding some values.")
-		combinedLogger.Info(fmt.Sprintf("Created wireguard instance on port %d", wgInterface.ListenPort))
+		combinedLogger.Info("Created wireguard instance on port " + fmt.Sprint(wgInterface.ListenPort))
 	}
 
 	peers := generatePeerArray()

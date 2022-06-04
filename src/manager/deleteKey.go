@@ -1,8 +1,6 @@
 package manager
 
 import (
-	"fmt"
-
 	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/logger"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
@@ -13,7 +11,7 @@ func DeleteKey(interfaceName string, publicStr string) (bool, string) {
 
 	client, errInstance := createInstance() //create new communication wg device
 	if errInstance != nil {
-		combinedLogger.Error(fmt.Sprintf("Create instance %s", errInstance))
+		combinedLogger.Error("Create instance " + errInstance.Error())
 		return false, "An error has occurred when creating a WG instance"
 	}
 

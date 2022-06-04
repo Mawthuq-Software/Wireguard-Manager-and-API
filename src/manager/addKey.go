@@ -1,7 +1,6 @@
 package manager
 
 import (
-	"fmt"
 	"net"
 	"time"
 
@@ -52,7 +51,7 @@ func AddKey(interfaceName string, ipv4Address string, ipv6Address string, public
 
 	client, errInstance := createInstance() //new client to communicate with wireguard device
 	if errInstance != nil {
-		combinedLogger.Error(fmt.Sprintf("Creating instance %s", errInstance))
+		combinedLogger.Error("Creating instance " + errInstance.Error())
 		return false, "An error has occurred when creating a WG instance"
 	}
 

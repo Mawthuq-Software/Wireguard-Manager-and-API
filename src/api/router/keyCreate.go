@@ -1,7 +1,6 @@
 package router
 
 import (
-	"fmt"
 	"net/http"
 
 	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/db"
@@ -22,7 +21,7 @@ func keyCreate(res http.ResponseWriter, req *http.Request) {
 
 	err := parseResponse(req, &incomingJson) //parse JSON
 	if err != nil {
-		combinedLogger.Error(fmt.Sprintf("Parsing request %s", err))
+		combinedLogger.Error("Parsing request " + err.Error())
 		sentStandardRes(res, map[string]string{"response": err.Error()}, http.StatusBadRequest)
 		return
 	}
