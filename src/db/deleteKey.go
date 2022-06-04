@@ -2,9 +2,9 @@ package db
 
 import (
 	"errors"
-	"log"
 	"strconv"
 
+	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/logger"
 	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/manager"
 	"gorm.io/gorm"
 )
@@ -16,6 +16,7 @@ func DeleteKey(keyID string) (bool, map[string]string) {
 
 	responseMap := make(map[string]string)
 	db := DBSystem
+	combinedLogger := logger.GetCombinedLogger()
 
 	keyIDInt, _ := strconv.Atoi(keyID)                              //convert key string to int
 	resultKey := db.Where("key_id = ?", keyIDInt).First(&keyStruct) //find key in database
@@ -28,7 +29,7 @@ func DeleteKey(keyID string) (bool, map[string]string) {
 	ipv4 := keyStruct.IPv4Address                              //set ipv4 address
 	delKey := db.Where("key_id = ?", keyID).Delete(&keyStruct) //delete key from db
 	if delKey.Error != nil {
-		log.Println("Finding key in DB", delKey.Error)
+		combinedLogger.Error("Finding key in DB " + delKey.Error.Error())
 		responseMap["response"] = "Error occurred when finding the key in database"
 		return false, responseMap
 	}
@@ -48,7 +49,7 @@ func DeleteKey(keyID string) (bool, map[string]string) {
 
 	delSub := db.Where("key_id = ?", keyID).Delete(&subStruct) //delete subcription from db
 	if delSub.Error != nil {
-		log.Println("Finding key in DB", delSub.Error)
+		combinedLogger.Error("Finding key in DB " + delSub.Error.Error())
 		responseMap["response"] = "Error occurred when finding the subscription in database"
 		return false, responseMap
 	}

@@ -1,13 +1,12 @@
 package api
 
 import (
-	"fmt"
-	"log"
 	"net"
 	"net/http"
 
 	"github.com/spf13/viper"
 	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/api/router"
+	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/logger"
 )
 
 type authStruct struct {
@@ -15,31 +14,32 @@ type authStruct struct {
 }
 
 func API() {
+	combinedLogger := logger.GetCombinedLogger()
+	combinedLogger.Info("Starting web server")
+
 	newRouter := router.NewRouter()
 
 	serverDev := viper.GetBool("SERVER.SECURITY")
 	if !serverDev {
 		port := viper.GetString("SERVER.PORT")
-		fmt.Printf("Info - HTTP about to listen on %s.", port)
-		log.Printf("Info - HTTP about to listen on %s.", port)
+		combinedLogger.Info("HTTP about to listen on " + port)
 
 		resolve, _ := net.ResolveTCPAddr("tcp4", "0.0.0.0:"+port)
 		resolveTCP, _ := net.ListenTCP("tcp4", resolve)
 
 		errServer := http.Serve(resolveTCP, newRouter)
-		log.Fatal("Error - Startup of API server", errServer)
+		combinedLogger.Error("Failed to startup of API server " + errServer.Error())
 	} else {
 		port := viper.GetString("SERVER.PORT")
 		fullchainCert := viper.GetString("SERVER.CERT.FULLCHAIN")
 		privKeyCert := viper.GetString("SERVER.CERT.PK")
 
-		log.Printf("HTTPS about to listen on %s.", port)
-		fmt.Printf("HTTPS about to listen on %s.", port)
+		combinedLogger.Info("HTTP about to listen on " + port)
 
 		resolve, _ := net.ResolveTCPAddr("tcp4", "0.0.0.0:"+port)
 		resolveTCP, _ := net.ListenTCP("tcp4", resolve)
 
 		errServer := http.ServeTLS(resolveTCP, newRouter, fullchainCert, privKeyCert)
-		log.Fatal("Error - Startup of API server", errServer)
+		combinedLogger.Error("Failed to startup of API server " + errServer.Error())
 	}
 }

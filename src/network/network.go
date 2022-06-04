@@ -1,41 +1,43 @@
 package network
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/spf13/viper"
 	"github.com/vishvananda/netlink"
 	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/db"
+	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/logger"
 )
 
 func SetupWG() {
-	log.Println("Info - Setting up WG interface")
+	combinedLogger := logger.GetCombinedLogger()
+	combinedLogger.Info("Starting autochecker")
+
+	combinedLogger.Info("Setting up your wireguard network interface")
 	db.WGStart()
 	wg0, errLink := netlink.LinkByName("wg0")
 	if errLink != nil {
-		log.Fatal("Error - Failed to get link to wireguard interface")
+		combinedLogger.Fatal("Failed to get link to wireguard interface")
 	}
 	ipCheck(wg0)
 }
 
 func addIP(instance netlink.Link, ipAddr *netlink.Addr) {
+	combinedLogger := logger.GetCombinedLogger()
+
 	ipAddErr := netlink.AddrAdd(instance, ipAddr)
 	if ipAddErr != nil {
-		fmt.Println("Warning - Failed to add IP address", ipAddErr)
-		log.Println("Warning - Failed to add IP address", ipAddErr)
+		combinedLogger.Warn("Failed to add IP address " + ipAddErr.Error())
 	} else {
-		log.Println("Info - Added IP address to interface")
+		combinedLogger.Info("Added IP address to interface")
 	}
 }
 
 func ipCheck(wg0 netlink.Link) {
-	log.Println("Info - Checking if IPs exist")
+	combinedLogger := logger.GetCombinedLogger()
 
+	combinedLogger.Info("Checking if IPs exist")
 	IPs, err := netlink.AddrList(wg0, 0) //list of IP addresses in system, equivalent to: `ip addr show`
 	if err != nil {
-		fmt.Println("Error - Failed to get find wireguard interface")
-		log.Fatal("Error - Failed to get find wireguard interface")
+		combinedLogger.Error("Failed to get find wireguard interface")
 	}
 
 	ipv4Check := false //variables for checks
@@ -51,13 +53,13 @@ func ipCheck(wg0 netlink.Link) {
 	ethDevice := viper.GetString("SERVER.INTERFACE")
 	devInterface, errLink := netlink.LinkByName(ethDevice)
 	if errLink != nil {
-		log.Fatal("Error - Failed to get link to device interface")
+		combinedLogger.Error("Failed to get link to device interface")
 	}
 
 	for i := 0; i < len(IPv4Addresses); i++ {
 		ipv4AddrParse, errParsev4 := netlink.ParseAddr(IPv4Addresses[i] + "/32") //add subnet of 16 to IP
 		if errParsev4 != nil {
-			log.Fatal("Error - Failed to parse IPv4 Address")
+			combinedLogger.Error("Failed to parse IPv4 Address")
 		}
 		addIP(devInterface, ipv4AddrParse)
 	}
@@ -65,21 +67,21 @@ func ipCheck(wg0 netlink.Link) {
 	for i := 0; i < len(IPv6Addresses); i++ {
 		ipv6AddrParse, errParsev6 := netlink.ParseAddr(IPv6Addresses[i] + "/128") //add subnet of 16 to IP
 		if errParsev6 != nil {
-			log.Fatal("Error - Failed to get parse IPv6 Address")
+			combinedLogger.Error("Failed to get parse IPv6 Address")
 		}
 		addIP(devInterface, ipv6AddrParse)
 	}
 
 	ipv4Addr, errParsev4 := netlink.ParseAddr(wgIPv4 + ipv4Subnet) //add subnet of 16 to IP
 	if errParsev4 != nil {
-		log.Println("Error - Failed to parse IPv4 Address")
+		combinedLogger.Error("Failed to parse IPv4 Addresss")
 	}
 
 	if wgIPv6 != "-" { //if IPv6 is not set to - in config
 		ipv6Subnet := viper.GetString("INSTANCE.IP.LOCAL.IPV6.SUBNET")
 		ipv6Addr, errParsev6 := netlink.ParseAddr(wgIPv6 + ipv6Subnet)
 		if errParsev6 != nil {
-			log.Println("Error - Failed to parse IPv6 Address")
+			combinedLogger.Error("Failed to parse IPv6 Address")
 		}
 		for i := 0; i < len(IPs); i++ { //checks if IPs wanted exist
 			if IPs[i].Equal(*ipv4Addr) { //Check if IPv4 address wanted is already present

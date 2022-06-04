@@ -2,7 +2,6 @@ package db
 
 import (
 	"errors"
-	"log"
 	"strconv"
 	"time"
 
@@ -17,6 +16,7 @@ func CreateKey(pubKey string, preKey string, bwLimit int64, subEnd string, ipInd
 	var wgStruct WireguardInterface
 	responseMap := make(map[string]string)
 	db := DBSystem
+	combinedLogger := logger.GetCombinedLogger()
 
 	//Must be first to prevent uneccessary key additions to DB
 	ipMap := viper.GetStringSlice("INSTANCE.IP.GLOBAL.ADDRESS.IPV4")
@@ -41,7 +41,7 @@ func CreateKey(pubKey string, preKey string, bwLimit int64, subEnd string, ipInd
 	keyStructCreate := Key{PublicKey: pubKey, PresharedKey: preKey, IPv4Address: ipStruct.IPv4Address, Enabled: "true"} //create Key object
 	resultKeyCreate := db.Create(&keyStructCreate)                                                                      //add object to db
 	if resultKeyCreate.Error != nil {
-		log.Println("Error - Adding key to db", resultKeyCreate.Error)
+		combinedLogger.Error("Adding " + resultKeyCreate.Error.Error())
 		responseMap["response"] = "Error when adding key to database"
 		return false, responseMap
 	}
@@ -52,7 +52,7 @@ func CreateKey(pubKey string, preKey string, bwLimit int64, subEnd string, ipInd
 	subStructCreate := Subscription{KeyID: keyStructCreate.KeyID, PublicKey: pubKey, BandwidthUsed: 0, BandwidthAllotted: bwLimit, SubscriptionEnd: subEnd}
 	resultSub := db.Create(&subStructCreate)
 	if resultSub.Error != nil {
-		log.Println("Error - Adding subscription to db", resultKeyCreate.Error)
+		combinedLogger.Error("Adding " + resultKeyCreate.Error.Error())
 		responseMap["response"] = "Error when adding subscription to database"
 		return false, responseMap
 	}

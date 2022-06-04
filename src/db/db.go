@@ -2,12 +2,11 @@ package db
 
 import (
 	"errors"
-	"log"
-	"os"
 	"strconv"
 	"strings"
 
 	"github.com/spf13/viper"
+	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/logger"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -15,14 +14,14 @@ import (
 var DBSystem *gorm.DB
 
 func DBStart() {
-	log.Println("Info - Database connection starting")
-	errCreateDir := os.MkdirAll("/opt/wgManagerAPI/wg", 0755) //create dir if not exist
-	if errCreateDir != nil {
-		log.Fatal("Error - Creating wg directory", errCreateDir)
-	}
+	combinedLogger := logger.GetCombinedLogger()
+	combinedLogger.Info("Starting the database")
+
 	db, err := gorm.Open(sqlite.Open("/opt/wgManagerAPI/wg/wireguardPeers.db"), &gorm.Config{}) //open sqlite db
 	if err != nil {
-		panic("Error - Failed to connect database")
+		failedConnectionMessage := "Failed to connect database"
+		combinedLogger.Error(failedConnectionMessage)
+		panic(failedConnectionMessage)
 	}
 
 	DBSystem = db //set global variable up
@@ -30,15 +29,16 @@ func DBStart() {
 	// Migrate the schema
 	errMigrate := db.AutoMigrate(&Key{}, &IP{}, &WireguardInterface{}, &Subscription{}) //Migrate tables to sqlite
 	if errMigrate != nil {
-		log.Fatal("Error - Migrating database", errMigrate)
+		combinedLogger.Fatal(errMigrate.Error())
 	} else {
-		log.Println("Info - Successfully migrated db")
+		combinedLogger.Info("Successful migration of database")
 	}
 	generateIPs()
 }
 
 func generateIPs() {
-	log.Println("Info - Generating IPs")
+	combinedLogger := logger.GetCombinedLogger()
+	combinedLogger.Info("Generating IPs")
 
 	var availableIPStruct IP
 	db := DBSystem
@@ -47,7 +47,7 @@ func generateIPs() {
 	maxIPInt, err := strconv.Atoi(maxIPStr)      //convert to int
 
 	if err != nil {
-		log.Fatal("Unable to convert IP to int", err)
+		combinedLogger.Error("Failed type conversion from IP to int " + err.Error())
 	}
 
 	ipv4Addr := viper.GetString("INSTANCE.IP.LOCAL.IPV4.ADDRESS")  //IPv4 Subnet Address
@@ -61,7 +61,7 @@ func generateIPs() {
 		ipv6Query := ipv6Splice[0] + ipv6Splice[1] + ipv6Splice[2] + ":"
 		result := db.Where("ipv6_address = ?", ipv6Query+maxIPStr).First(&availableIPStruct) //find if any IP has been generated
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			log.Println("Info - IP Address not found, generating")
+			combinedLogger.Info("IP address was not found, generating")
 			pointer := 3
 			octet := 0 //so that we start at 10.6.x.3
 
@@ -76,7 +76,7 @@ func generateIPs() {
 				db.Create(currentIP)
 				pointer++
 			}
-			log.Println("Info - Generated IPs successfully")
+			combinedLogger.Info("Generated IPs successfully")
 		}
 	} else {
 		modulus := maxIPInt % 242
@@ -94,7 +94,7 @@ func generateIPs() {
 		ipv4Search := ipv4Query + "." + thirdOctetStr + "." + fourthOctetStr
 		result := db.Where("ipv4_address = ?", ipv4Search).First(&availableIPStruct) //find if any IP has been generated
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {                         //if not found
-			log.Println("Info - IP Address not found, generating")
+			combinedLogger.Info("IP address was not found, generating")
 			pointer := 3
 			octet := 0 //so that we start at 10.6.x.3
 
@@ -108,7 +108,7 @@ func generateIPs() {
 				db.Create(currentIP)
 				pointer++
 			}
-			log.Println("Info - Generated IPs successfully")
+			combinedLogger.Info("Generated IPs successfully")
 		}
 	}
 }

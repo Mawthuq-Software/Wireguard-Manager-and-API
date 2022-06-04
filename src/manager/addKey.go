@@ -1,7 +1,6 @@
 package manager
 
 import (
-	"log"
 	"net"
 	"time"
 
@@ -13,6 +12,7 @@ func AddKey(interfaceName string, ipv4Address string, ipv6Address string, public
 	var ipAddresses []net.IPNet
 	var zeroTime time.Duration
 	var arrayConfig []wgtypes.PeerConfig
+	combinedLogger := logger.GetCombinedLogger()
 
 	if ipv4Address != "-" { //check for unneeded IP
 		ipv4Address = ipv4Address + "/32"     //add subnet to IP
@@ -51,7 +51,7 @@ func AddKey(interfaceName string, ipv4Address string, ipv6Address string, public
 
 	client, errInstance := createInstance() //new client to communicate with wireguard device
 	if errInstance != nil {
-		log.Println("Error - Creating instance", errInstance)
+		combinedLogger.Error("Creating instance " + errInstance.Error())
 		return false, "An error has occurred when creating a WG instance"
 	}
 

@@ -2,9 +2,13 @@ package config
 
 import (
 	"github.com/spf13/viper"
+	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/logger"
 )
 
 func LoadConfig() {
+	combinedLogger := logger.GetCombinedLogger()
+	combinedLogger.Info("Loading configuration file")
+
 	viper.SetConfigName("config")             // name of config file (without extension)
 	viper.SetConfigType("json")               // REQUIRED if the config file does not have the extension in the name
 	viper.AddConfigPath("/opt/wgManagerAPI/") // path to look for the config file in

@@ -1,7 +1,6 @@
 package db
 
 import (
-	"log"
 	"strconv"
 	"time"
 
@@ -11,11 +10,13 @@ import (
 func SetSubscription(keyID string, bwLimit int64, subExpiry string, bwReset bool) (bool, map[string]string) {
 	var subStructModify Subscription
 	db := DBSystem
+	combinedLogger := logger.GetCombinedLogger()
+
 	responseMap := make(map[string]string)
 	keyIDInt, _ := strconv.Atoi(keyID) //convert to int
 	resultSub := db.Where("key_id = ?", keyIDInt).First(&subStructModify)
 	if resultSub.Error != nil {
-		log.Println("Error - Finding subscription in db", resultSub.Error)
+		combinedLogger.Error("Error Finding subscription in db " + resultSub.Error.Error())
 		responseMap["response"] = "Error - Finding subscription"
 		return false, responseMap
 	}

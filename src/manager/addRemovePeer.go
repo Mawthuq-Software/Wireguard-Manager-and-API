@@ -1,7 +1,6 @@
 package manager
 
 import (
-	"log"
 	"time"
 
 	"gitlab.com/raspberry.tech/wireguard-manager-and-api/src/logger"
@@ -10,8 +9,10 @@ import (
 
 func AddRemovePeer(peer wgtypes.Peer, wgIntName string) bool { //add and readds clients based on if a time to last connection has been reached
 	client, errInstance := createInstance()
+	combinedLogger := logger.GetCombinedLogger()
+
 	if errInstance != nil {
-		log.Println("Create instance", errInstance)
+		combinedLogger.Error("Create instance " + errInstance.Error())
 		return false
 	}
 	//get each peer in the wg interface
