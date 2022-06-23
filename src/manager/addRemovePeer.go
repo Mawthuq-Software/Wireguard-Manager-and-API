@@ -22,7 +22,7 @@ func AddRemovePeer(peer wgtypes.Peer, wgIntName string) bool { //add and readds 
 		return false
 	}
 
-	handshakeAfterDeadline := lastConnection.Add(time.Minute * 1)                     //add 5 minutes to last connection
+	handshakeAfterDeadline := lastConnection.Add(time.Minute * 5)                     //add 5 minutes to last connection
 	if currentTime.After(handshakeAfterDeadline) && !lastConnection.Equal(zeroTime) { //compare now and 5 minutes after last connection
 		allowedIPs := peer.AllowedIPs        //get IPs of client
 		publicKey := peer.PublicKey          //get public key of client
